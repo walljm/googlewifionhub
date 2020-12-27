@@ -20,8 +20,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build Windows
-      run: dotnet publish -c Release --runtime win-x64
+      run: dotnet publish -c Release -p:PublishSingleFile=true --self-contained true --runtime win-x64
     - name: Build Linux
-      run: dotnet publish -c Release --runtime linux-x64
+      run: dotnet publish -c Release -p:PublishSingleFile=true --self-contained true --runtime linux-x64
     - name: Build Mac
-      run: dotnet publish -c Release --runtime osx-x64
+      run: dotnet publish -c Release -p:PublishSingleFile=true --self-contained true --runtime osx-x64
