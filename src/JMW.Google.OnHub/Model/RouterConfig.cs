@@ -1,4 +1,4 @@
-﻿namespace JMW.Google.OnHub.Models
+﻿namespace JMW.Google.OnHub.Model
 {
     public class RouterConfig
     {

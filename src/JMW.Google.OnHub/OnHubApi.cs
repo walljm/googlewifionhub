@@ -1,5 +1,5 @@
 ﻿using Diagnosticreport;
-using JMW.Google.OnHub.Models;
+using JMW.Google.OnHub.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
