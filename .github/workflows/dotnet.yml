@@ -19,7 +19,9 @@ jobs:
         dotnet-version: 5.0.101
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: Build Windows
+      run: dotnet publish -c Release --runtime win-x64
+    - name: Build Linux
+      run: dotnet publish -c Release --runtime linux-x64
+    - name: Build Mac
+      run: dotnet publish -c Release --runtime osx-x64
