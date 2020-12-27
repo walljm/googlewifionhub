@@ -21,7 +21,19 @@ jobs:
       run: dotnet restore
     - name: Build Windows
       run: dotnet publish ./src/JMW.Google.OnHub.Console/JMW.Google.OnHub.Console.csproj -c Release -p:PublishSingleFile=true --self-contained true --runtime win-x64
+    - uses: actions/upload-artifact@v2
+      with:
+        name: windows-onhub
+        path: /home/runner/work/googlewifionhub/googlewifionhub/src/JMW.Google.OnHub.Console/bin/Release/net5.0/win-x64/publish/onhub.exe
     - name: Build Linux
       run: dotnet publish ./src/JMW.Google.OnHub.Console/JMW.Google.OnHub.Console.csproj -c Release -p:PublishSingleFile=true --self-contained true --runtime linux-x64
+    - uses: actions/upload-artifact@v2
+      with:
+        name: linux-onhub
+        path: /home/runner/work/googlewifionhub/googlewifionhub/src/JMW.Google.OnHub.Console/bin/Release/net5.0/linux-x64/publish/onhub.exe
     - name: Build Mac
       run: dotnet publish ./src/JMW.Google.OnHub.Console/JMW.Google.OnHub.Console.csproj -c Release -p:PublishSingleFile=true --self-contained true --runtime osx-x64
+    - uses: actions/upload-artifact@v2
+      with:
+        name: mac-onhub
+        path: /home/runner/work/googlewifionhub/googlewifionhub/src/JMW.Google.OnHub.Console/bin/Release/net5.0/osx-x64/publish/onhub.exe
