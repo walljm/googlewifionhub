@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True">
+        <Configuration>
+            <Verbosity>normal</Verbosity>
+        </Configuration>
+      </Logger>
+    </Loggers>
+  </LoggerRunSettings>
+  <NUnit>
+    <ConsoleOut>1</ConsoleOut>
+    <DisplayName>FullNameSep</DisplayName>
+  </NUnit>
+</RunSettings>

@@ -1,0 +1,17 @@
+# automatically normalize line endings
+* text=auto
+
+# treat .gitignore as a binary file, because it has some necessary \r characters
+/.gitignore -text
+
+# set the hunk header for C# files
+*.cs diff=csharp
+
+# ensure shell scripts are checked out with LF line endings
+*.sh text eol=lf
+docker-healthcheck text eol=lf
+wheel-no-requiretty text eol=lf
+
+# don't touch DSC file line endings
+*.dsc -text
+*.vsc -text
