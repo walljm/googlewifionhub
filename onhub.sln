@@ -8,9 +8,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24F5E14E-B71C-4456-B6EE-FD0DD59372CC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.runsettings = .runsettings
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMW.Google.OnHub.Console", "src\JMW.Google.OnHub.Console\JMW.Google.OnHub.Console.csproj", "{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMW.Google.OnHub.Console", "src\JMW.Google.OnHub.Console\JMW.Google.OnHub.Console.csproj", "{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
