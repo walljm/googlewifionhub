@@ -13,12 +13,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 
-namespace onhub
+namespace JMW.Google.OnHub.Collector
 {
     public static class Extensions
     {
-        
+        public static async Task<T> ReadAsAsync<T>(this HttpContent content) =>
+            await JsonSerializer.DeserializeAsync<T>(await content.ReadAsStreamAsync());
+
         public static string If(this string s, Func<string, string[], string> work, params string[] parms)
         {
             return parms.Any(o => s.Contains(o)) ? work(s, parms) : string.Empty;

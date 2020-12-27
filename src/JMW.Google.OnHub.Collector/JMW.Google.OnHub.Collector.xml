@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>JMW.Google.OnHub.Collector</name>
+    </assembly>
+    <members>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseToIndexOf(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string from the begining to the index of one of the provided string parameters
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+            <returns>Subsection of the string from begining to the index of the first matching parameter</returns>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseToLastIndexOf(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string from the begining to the last index of one of the provided string parameters
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseToIndexOf_PlusLength(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string from the begining to the index of one of the provided string parameters, plus the length of the found parameter
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+            <returns>Subsection of the string from begining to the index of the first matching parameter</returns>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseToLastIndexOf_PlusLength(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string from the begining to the last index of one of the provided string parameters, plus the length of the found parameter
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseAfterIndexOf_PlusLength(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string starting after the first provided string parameter discovered to the end of the string
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseAfterLastIndexOf_PlusLength(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string starting after the last index of the first provided string parameter discovered to the end of the string
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseToDesignatedIndexOf_PlusLength(System.String,System.Int32,System.Boolean,System.String[])">
+            <summary>
+              Returns a string from the begining to the last index of one of the provided string parameters, plus the length of the found parameter
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="qty">The number of the search patter to parse after</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseAfterDesignatedIndexOf_PlusLength(System.String,System.Int32,System.Boolean,System.String[])">
+            <summary>
+              Returns a string starting after the last index of the first provided string parameter discovered to the end of the string
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="qty">The number of the search patter to parse after</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseAfterLastIndexOf(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string starting after the last index of the first provided string parameter discovered to the end of the string
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ParseAfterIndexOf(System.String,System.Boolean,System.String[])">
+            <summary>
+              Returns a string starting after the last index of the first provided string parameter discovered to the end of the string
+            </summary>
+            <param name="s">The string to parse</param>
+            <param name="case_insensitive">Wheather to performs a case insensitive search or not</param>
+            <param name="parms">The strings to parse to</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.IndexOf(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Finds the index of a search string.  Optionally allows case insensitivity or option to search for last index.
+            </summary>
+            <param name="str">String to search</param>
+            <param name="search_string">String to search for</param>
+            <param name="case_insensitive">Ignore case</param>
+            <param name="last">Search for last instance</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.IndexOf(System.String,System.String,System.Boolean,System.Int32)">
+            <summary>
+            Finds the index of a search string.  Optionally allows case insensitivity or option to search for specific index.
+            </summary>
+            <param name="str">String to search</param>
+            <param name="search_string">String to search for</param>
+            <param name="case_insensitive">Ignore case</param>
+            <param name="qty">Search for specific instance</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.SafeSubstring(System.String,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+              Safely handles the cases where your start exceeds the length of the string, or your start+length exceeds the length of the string.
+            </summary>
+            <param name="s">The string to do the substring on</param>
+            <param name="start">The index of the string to start parsing from</param>
+            <param name="length">The number of characters to return</param>
+            <returns>A subsection of the provided string</returns>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.IsEmpty(System.String)">
+            <summary>
+             Determines if the string is either null or has no characters
+            </summary>
+            <param name="str">String to evaluate</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.IsNotEmpty(System.String)">
+            <summary>
+             Determines if the string is both not null and has at least 1 character.
+            </summary>
+            <param name="str">String to evaluate</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ContainsFast(System.String,System.Char)">
+            <summary>
+            Searches a string for a given <see cref="T:System.Char"/>
+            </summary>
+            <param name="str">String to search</param>
+            <param name="c"><see cref="T:System.Char"/> to find</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.ToPascalCase(System.String)">
+            <summary>
+            Converts a string to PascalCase.  Removes any illegal file name characters.
+            </summary>
+            <param name="str">string to convert</param>
+        </member>
+        <member name="M:JMW.Google.OnHub.Collector.Extensions.CountInstances(System.String,System.String,System.Boolean)">
+            <summary>
+            Counts the numbers of instances of the <paramref name="c"/> param in the <paramref
+            name="test"/> string.
+            </summary>
+            <param name="test">string to search</param>
+            <param name="c">char to search for</param>
+            <param name="respect_word_boundaries">doesn't count "port" the same as "portindex"</param>
+            <returns>int</returns>
+        </member>
+        <member name="T:Parsing.Junos.LineTrackingReader">
+            <summary>
+            A wrapper for a TextReader that keeps track line and column as well as allowing
+            you to unread text using a PushBack method.
+            </summary>
+        </member>
+        <member name="P:Parsing.Junos.LineTrackingReader.Line">
+            <summary>
+            The, currently read to, Line in our reader.
+            </summary>
+        </member>
+        <member name="P:Parsing.Junos.LineTrackingReader.Column">
+            <summary>
+            The, currently read to, column in our reader.
+            </summary>
+            <value>The column.</value>
+        </member>
+        <member name="M:Parsing.Junos.LineTrackingReader.Read(System.Char[])">
+            <summary>
+            Read from the wrapped reader into the provided buffer while updating the line
+            and column.
+            </summary>
+            <param name="buffer">The char buffer to read text into.
+            Overwrites the contents if there was any.</param>
+        </member>
+        <member name="M:Parsing.Junos.LineTrackingReader.PushBack(System.Char[])">
+            <summary>
+            Pushes back text into the reader to be read again while updating the line and
+            column numbers.
+            This method assumes you are pushing previously read text back in.
+            </summary>
+            <param name="buffer">Buffer.</param>
+        </member>
+        <member name="T:Parsing.Junos.Parser">
+            <summary>
+              Parses template tags for a simple generic templating engine.
+            </summary>
+        </member>
+        <member name="M:Parsing.Junos.Parser.Parse(System.String)">
+            <summary>
+            Parses a template into a list of Tags to process.
+            </summary>
+            <param name="block">The input template</param>
+            <returns>List of parsed Tag objects</returns>
+        </member>
+        <member name="T:Diagnosticreport.DiagnosticreportReflection">
+            <summary>Holder for reflection information generated from diagnosticreport.proto</summary>
+        </member>
+        <member name="P:Diagnosticreport.DiagnosticreportReflection.Descriptor">
+            <summary>File descriptor for diagnosticreport.proto</summary>
+        </member>
+        <member name="F:Diagnosticreport.File.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.File.ContentFieldNumber">
+            <summary>Field number for the "content" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.FileLength.PathFieldNumber">
+            <summary>Field number for the "path" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.FileLength.LengthFieldNumber">
+            <summary>Field number for the "length" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.CommandOutput.CommandFieldNumber">
+            <summary>Field number for the "command" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.CommandOutput.OutputFieldNumber">
+            <summary>Field number for the "output" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.CommandOutput.StatusCodeFieldNumber">
+            <summary>Field number for the "statusCode" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.UnknownPair.Unknown1FieldNumber">
+            <summary>Field number for the "unknown1" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.UnknownPair.Unknown2FieldNumber">
+            <summary>Field number for the "unknown2" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.VersionFieldNumber">
+            <summary>Field number for the "version" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.FilesFieldNumber">
+            <summary>Field number for the "files" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.StormVersionFieldNumber">
+            <summary>Field number for the "stormVersion" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.WhirlwindVersionFieldNumber">
+            <summary>Field number for the "whirlwindVersion" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.NetworkConfigFieldNumber">
+            <summary>Field number for the "networkConfig" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.FileLengthsFieldNumber">
+            <summary>Field number for the "fileLengths" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.WanInfoFieldNumber">
+            <summary>Field number for the "wanInfo" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.CommandOutputsFieldNumber">
+            <summary>Field number for the "commandOutputs" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.InfoJSONFieldNumber">
+            <summary>Field number for the "infoJSON" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.Unknown1FieldNumber">
+            <summary>Field number for the "unknown1" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.UnknownPairsFieldNumber">
+            <summary>Field number for the "unknownPairs" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.UnixTimeFieldNumber">
+            <summary>Field number for the "unixTime" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.UnknownStringFieldNumber">
+            <summary>Field number for the "unknownString" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.NetworkStateFieldNumber">
+            <summary>Field number for the "networkState" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.StateFieldNumber">
+            <summary>Field number for the "state" field.</summary>
+        </member>
+        <member name="F:Diagnosticreport.DiagnosticReport.ConfigFieldNumber">
+            <summary>Field number for the "config" field.</summary>
+        </member>
+    </members>
+</doc>

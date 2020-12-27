@@ -1,23 +1,21 @@
 ﻿using Diagnosticreport;
-using JMW.Extensions.Text;
-using Newtonsoft.Json;
+using JMW.Google.OnHub.Collector.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace onhub
+namespace JMW.Google.OnHub.Collector
 {
-    internal class Program
+    public class ApiVersion1
     {
         private static readonly HttpClient client = new HttpClient();
 
-        private static Dictionary<string, string> hwTypes = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> hwTypes = new Dictionary<string, string>
         {
             {"0x0", "Reserved"},
             {"0x1", "Ethernet"},
@@ -62,7 +60,7 @@ namespace onhub
             {"0x65535", "Reserved"}
         };
 
-        private static Dictionary<string, string> flags = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> flags = new Dictionary<string, string>
         {
             {"0x0", "Incomplete"},
             {"0x2", "Complete"},
@@ -74,167 +72,24 @@ namespace onhub
             {"0x40", "Dont Publish"},
         };
 
-        private static void Main(string[] args)
+        public static async Task<DeviceState> GetData(IPAddress target)
         {
-            var t = test();
-            t.Wait();
-
-            //var t = doWork();
-            //t.Wait();
+            var dict = await getDiagnosticReport(target);
+            var netState = extractDeviceState(dict["netState"]);
+            netState.ArpCache = extractArps(dict["/proc/net/arp"]);
+            netState.Interfaces = extractInterfaces(dict["/bin/ip -s -d addr"]);
+            netState.CamTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
+            return netState;
         }
 
-        private static readonly char[] chars =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray(); 
-
-        private static string getChars(int size)
-        {            
-            byte[] data = new byte[4*size];
-            using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider())
-            {
-                crypto.GetBytes(data);
-            }
-            StringBuilder result = new StringBuilder(size);
-            for (int i = 0; i < size; i++)
-            {
-                var rnd = BitConverter.ToUInt32(data, i * 4);
-                var idx = rnd % chars.Length;
-
-                result.Append(chars[idx]);
-            }
-
-         
-            return result.ToString();
-        }
-
-        private static async Task test()
-        {
-            const string REFRESH_TOKEN =
-                "1//0d9mgH01EnYUeCgYIARAAGA0SNwF-L9IrkWFdSzH6CKgh_2DjbJWx1GepAxmsTm4sPP0OWJ_mf9lrhvoUX1_nHEc_ZNvsDN6frHY";
-            string devicesUrl = "https://googlehomefoyer-pa.googleapis.com/v2/groups/AAAAABlsocQ/stations?prettyPrint=false";
-            string systemsUrl = "https://googlehomefoyer-pa.googleapis.com/v2/groups?prettyPrint=false";
-        
-            var authResponse = await client.PostAsync("https://www.googleapis.com/oauth2/v4/token", new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                {"client_id", "936475272427.apps.googleusercontent.com"},
-                {"grant_type", "refresh_token"},
-                {"refresh_token", REFRESH_TOKEN}
-            }));
-            var auth = await authResponse.Content.ReadAsAsync<AuthResp>();
-
-
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(auth.token_type, auth.access_token);
-            var tokenResponse = await client.PostAsync("https://oauthaccountmanager.googleapis.com/v1/issuetoken",
-                new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    {"app_id", "com.google.OnHub"},
-                    {"client_id", "586698244315-vc96jg3mn4nap78iir799fc2ll3rk18s.apps.googleusercontent.com"},
-                    {"hl", "en-US"},
-                    {"lib_ver", "3.3"},
-                    {"response_type", "token"},
-                    {
-                        "scope",
-                        "https://www.googleapis.com/auth/accesspoints https://www.googleapis.com/auth/clouddevices"
-                    }
-                }));
-            var token = await tokenResponse.Content.ReadAsAsync<TokenResp>();
-
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(auth.token_type, token.token);
-            var systemsResponse = await client.GetAsync(systemsUrl);
-            var systems = await systemsResponse.Content.ReadAsStringAsync();
-
-            var devicesResponse = await client.GetAsync(devicesUrl);
-            var devices = await devicesResponse.Content.ReadAsStringAsync();
-        }
-
-
-        private class TokenResp
-        {
-            public string issueAdvice { get; set; }
-            public string token {get;set;}
-            public string expiresIn {get;set;}
-            public string id_token {get;set;}
-        }
-        private class AuthResp
-        {
-            public string access_token {get;set;}
-            public int expires_in {get;set;}
-            public string scope {get;set;}
-            public string token_type {get;set;}
-            public string id_token {get;set;}
-        }
-
-
-        private static async Task test1()
-        {
-            var clientState = getChars(20) + "_" + getChars(36);
-            var deviceChallenge = getChars(76);
-            var deviceId = Guid.NewGuid().ToString().ToUpper();
-
-            var httpContent = new StringContent(@"
-                {
-                    ""external_browser"":true,
-                    ""report_user_id"": true,
-                    ""system_version"": ""13.4"",
-                    ""app_version"": ""2.16.4"",
-                    ""user_id"": [],
-                    ""safari_authentication_session"": true,
-                    ""supported_service"": [],
-                    ""request_trigger"": ""ADD_ACCOUNT"",
-                    ""lib_ver"": ""3.3"",
-                    ""package_name"": ""com.google.OnHub"",
-                    ""redirect_uri"": ""com.google.sso.586698244315-vc96jg3mn4nap78iir799fc2ll3rk18s:/authCallback"",
-                    ""device_name"": ""walljm-hostname"",
-                    ""client_id"": ""586698244315-vc96jg3mn4nap78iir799fc2ll3rk18s.apps.googleusercontent.com"",
-                    ""mediator_client_id"": ""936475272427.apps.googleusercontent.com"",
-                    ""device_id"": """ + deviceId + @""",
-                    ""hl"": ""en-US"",
-                    ""device_challenge_request"": """ + deviceChallenge + @""",
-                    ""client_state"": """ + clientState + @""",
-                }", Encoding.UTF8, "application/json");
-
-            var resp = await client.PostAsync("https://oauthaccountmanager.googleapis.com/v1/authadvice", httpContent);
-            var json = await resp.Content.ReadAsStringAsync();
-        }
-
-        #region OnHub V1
-        private static async Task doWork()
-        {
-            var dict = await getDiagnosticReport("192.168.1.1");
-            var netState = ExtractDeviceState(dict["netState"]);
-            netState.ArpCache = ExtractArps(dict["/proc/net/arp"]);
-            netState.Interfaces = ExtractInterfaces(dict["/bin/ip -s -d addr"]);
-            netState.CamTable = ExtractMacs(dict["/sbin/brctl showmacs br-lan"]);
-
-            write(JsonConvert.SerializeObject(netState, Formatting.Indented));
-        }
-
-        private static void printJson(List<Parsing.Junos.Tag> netState)
-        {
-            write("[\n");
-            foreach (var tag in netState)
-            {
-                write($"{tag.ToJSON()},\n");
-            }
-
-            write("]\n");
-        }
-
-        private static void write(string str)
-        {
-            Console.WriteLine(str);
-            System.IO.File.AppendAllText("onhub.diag", str);
-        }
-
-        private static async Task<Dictionary<string, string[]>> getDiagnosticReport(string host)
+        private static async Task<Dictionary<string, string[]>> getDiagnosticReport(IPAddress target)
         {
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Host", "localhost");
-            var req = await client.GetAsync($"http://{host}/api/v1/diagnostic-report");
+            var req = await client.GetAsync($"http://{target}/api/v1/diagnostic-report");
             var stream = await req.Content.ReadAsStreamAsync();
-
-            var compressedBytes = ReadBytes(stream);
-            var decompressedBytes = Decompress(compressedBytes);
-            //System.IO.File.WriteAllBytes("diagnosticreport", decompressedBytes);
+            var compressedBytes = readBytes(stream);
+            var decompressedBytes = decompress(compressedBytes);
             var diag = DiagnosticReport.Parser.ParseFrom(decompressedBytes);
 
             var dict = new Dictionary<string, string[]>();
@@ -253,19 +108,39 @@ namespace onhub
                 dict.Add(file.Path, file.Content.ToStringUtf8().Split('\n').Select(l => l.TrimEnd('\r')).ToArray());
             }
 
-            //dict.Add("config", diag.Config.Split('\n'));
-            //dict.Add("netConfig", diag.NetworkConfig.Split('\n'));
             dict.Add("netState", diag.NetworkState.Split('\n'));
-
-            //foreach (var kvp in dict)
-            //{
-            //    System.IO.File.AppendAllLines("onhub.diag", new[] { kvp.Key });
-            //    System.IO.File.AppendAllLines("onhub.diag", kvp.Value);
-            //}
             return dict;
         }
 
-        private static List<Interface> ExtractInterfaces(string[] lines)
+        private static byte[] readBytes(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        private static byte[] decompress(byte[] data)
+        {
+            using (var compressedStream = new MemoryStream(data))
+            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+            using (var resultStream = new MemoryStream())
+            {
+                zipStream.CopyTo(resultStream);
+                return resultStream.ToArray();
+            }
+        }
+
+        #region Parsing Functions
+
+        private static List<Interface> extractInterfaces(string[] lines)
         {
             var records = new List<Interface>();
             var ifc = new Interface();
@@ -378,11 +253,10 @@ namespace onhub
                 }
             }
 
-            records.WriteAsTable(l => Console.Write(l));
             return records;
         }
 
-        private static List<Arp> ExtractArps(string[] lines)
+        private static List<Arp> extractArps(string[] lines)
         {
             var records = new List<Arp>();
             foreach (var line in lines.Skip(1))
@@ -400,11 +274,10 @@ namespace onhub
                 });
             }
 
-            records.WriteAsTable(l => Console.Write(l));
             return records;
         }
 
-        private static List<Mac> ExtractMacs(string[] lines)
+        private static List<Mac> extractMacs(string[] lines)
         {
             var records = new List<Mac>();
             foreach (var line in lines.Skip(1))
@@ -420,37 +293,10 @@ namespace onhub
                 });
             }
 
-            records.WriteAsTable(l => Console.Write(l));
             return records;
         }
 
-        private static byte[] ReadBytes(Stream input)
-        {
-            byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
-            {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-
-                return ms.ToArray();
-            }
-        }
-
-        private static byte[] Decompress(byte[] data)
-        {
-            using (var compressedStream = new MemoryStream(data))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
-            using (var resultStream = new MemoryStream())
-            {
-                zipStream.CopyTo(resultStream);
-                return resultStream.ToArray();
-            }
-        }
-
-        private static DeviceState ExtractDeviceState(string[] lines)
+        private static DeviceState extractDeviceState(string[] lines)
         {
             var parsed = new Parsing.Junos.Parser().Parse(string.Join('\n', lines));
             //printJson(parsed);
@@ -471,17 +317,17 @@ namespace onhub
                 }
                 else if (tag.Name == "infra_state")
                 {
-                    ds.InfraState = ExtractInfraState(tag.Children);
+                    ds.InfraState = extractInfraState(tag.Children);
                 }
                 else if (tag.Name == "network_service_state")
                 {
-                    ds.NetworkServiceState = ExtractNetworkServiceState(tag.Children);
+                    ds.NetworkServiceState = extractNetworkServiceState(tag.Children);
                 }
             }
             return ds;
         }
 
-        private static InfraState ExtractInfraState(IEnumerable<Parsing.Junos.Tag> ast)
+        private static InfraState extractInfraState(IEnumerable<Parsing.Junos.Tag> ast)
         {
             var infra = new InfraState();
             foreach (var tag in ast)
@@ -590,7 +436,7 @@ namespace onhub
             return infra;
         }
 
-        private static NetworkServiceState ExtractNetworkServiceState(IEnumerable<Parsing.Junos.Tag> ast)
+        private static NetworkServiceState extractNetworkServiceState(IEnumerable<Parsing.Junos.Tag> ast)
         {
             var result = new NetworkServiceState();
             foreach (var tag in ast)
@@ -945,204 +791,7 @@ namespace onhub
 
             return result;
         }
-        
-        #endregion
-    }
 
-    public class Arp
-    {
-        public string IpAddress { get; set; }
-        public string HwType { get; set; }
-        public string Flags { get; set; }
-        public string HwAddress { get; set; }
-        public string Mask { get; set; }
-        public string Device { get; set; }
-    }
-
-    public class Mac
-    {
-        public string IfIndex { get; set; }
-        public string HwAddress { get; set; }
-        public string IsLocal { get; set; }
-        public string Age { get; set; }
-    }
-
-    public class Interface
-    {
-        public string IfIndex { get; set; }
-        public string Name { get; set; }
-        public string Info { get; set; }
-        public string State { get; set; }
-        public string MAC { get; set; }
-        public string BRD { get; set; }
-
-        public string MTU { get; set; }
-        public string Qdisc { get; set; }
-        public string Group { get; set; }
-        public string Qlen { get; set; }
-        public string Link { get; set; }
-        public string Promiscuity { get; set; }
-
-        public string Inet { get; set; }
-        public string InetScope { get; set; }
-        public string InetValidLifetime { get; set; }
-        public string InetPreferredLifetime { get; set; }
-
-        public string Inet6 { get; set; }
-        public string Inet6Scope { get; set; }
-        public string Inet6ValidLifetime { get; set; }
-        public string Inet6PreferredLifetime { get; set; }
-
-        public string NumRxQueues { get; set; }
-        public string RxBytes { get; set; }
-        public string RxPackets { get; set; }
-        public string RxErrors { get; set; }
-        public string RxDropped { get; set; }
-        public string RxOverrun { get; set; }
-        public string RxMcast { get; set; }
-
-        public string NumTxQueues { get; set; }
-        public string TxBytes { get; set; }
-        public string TxPackets { get; set; }
-        public string TxErrors { get; set; }
-        public string TxDropped { get; set; }
-        public string TxOverrun { get; set; }
-        public string TxMcast { get; set; }
-
-        public string StpPriority { get; set; }
-        public string StpCost { get; set; }
-        public string StpHairpin { get; set; }
-        public string StpGuard { get; set; }
-        public string StpRootBlock { get; set; }
-        public string StpFastLeave { get; set; }
-        public string StpLearning { get; set; }
-        public string StpFlood { get; set; }
-        public string StpMcastFastLeave { get; set; }
-        public string StpForwardDelay { get; set; }
-        public string StpHelloTime { get; set; }
-        public string StpMaxAge { get; set; }
-    }
-
-    public class DeviceState
-    {
-        public List<Arp> ArpCache { get; set; }
-        public List<Mac> CamTable { get; set; }
-        public List<Interface> Interfaces { get; set; }
-        public string StateSeqNo { get; set; }
-        public string Version { get; set; }
-        public string TimeStampSeconds { get; set; }
-        public InfraState InfraState { get; set; }
-        public NetworkServiceState NetworkServiceState { get; set; }
-    }
-
-    public class NetworkServiceState
-    {
-        public IPv6 IPv6 { get; set; }
-        public RouterConfig RouterConfig { get; set; } = new RouterConfig();
-        public WanStatus WAN { get; set; } = new WanStatus();
-        public LanStatus LAN { get; set; } = new LanStatus();
-        public List<StationState> Stations { get; set; } = new List<StationState>();
-    }
-
-    public class StationState
-    {
-        public string StationId { get; set; }
-        public string MdnsName { get; set; }
-        public string Connected { get; set; }
-        public string IpAddresses { get; set; }
-        public string Wireless { get; set; }
-        public string DhcpHostname { get; set; }
-        public string WirelessInterface { get; set; }
-        public List<string> TaxonomyIds { get; set; } = new List<string>();
-        public DnsSdFeature DnsSdFeatures { get; set; } = new DnsSdFeature();
-        public string LastSeenSecondsSinceEpoch { get; set; }
-        public string Oui { get; set; }
-        public string Guest { get; set; }
-        public string OsVersion { get; set; }
-        public string OsBuild { get; set; }
-        public string DeviceModel { get; set; }
-    }
-
-    public class DnsSdFeature
-    {
-        public string FN { get; set; }
-        public string MD { get; set; }
-        public string CA { get; set; }
-        public string Key { get; set; }
-    }
-
-    public class LanStatus
-    {
-        public string OperIpAddress { get; set; }
-        public string OperNetMask { get; set; }
-        public string OperDhcpPoolBegin { get; set; }
-        public string OperDhcpPoolEnd { get; set; }
-        public string DnsType { get; set; }
-        public HashSet<string> IPv4DnsServers { get; set; } = new HashSet<string>();
-        public HashSet<string> IPv6DnsServers { get; set; } = new HashSet<string>();
-    }
-
-    public class WanStatus
-    {
-        public string Type { get; set; }
-        public string StaticIpAddress { get; set; }
-        public string StaticNetMask { get; set; }
-        public string StaticGateway { get; set; }
-        public string PppoeUsername { get; set; }
-
-        public string OperIpAddress { get; set; }
-        public string OperGateway { get; set; }
-        public string OperLinkSpeedMbps { get; set; }
-        public string PrimaryWanInterface { get; set; }
-        public HashSet<string> IPv4DnsServers { get; set; } = new HashSet<string>();
-    }
-
-    public class RouterConfig
-    {
-        public string UpnpEnabled { get; set; }
-        public string BridgeModeEnabled { get; set; }
-        public string TrafficAcceleration { get; set; }
-        public string RouterIpAddress { get; set; }
-        public string RouterNetMask { get; set; }
-    }
-
-    public class IPv6
-    {
-        public string NonTemporaryAddressReceived { get; set; }
-        public string PrefixDelegationReceived { get; set; }
-        public string AllowOnAp { get; set; }
-        public string ApStatus { get; set; }
-        public string Enabled { get; set; }
-        public string Prefix { get; set; }
-        public string PrefixLength { get; set; }
-        public string Source { get; set; }
-        public string Mode { get; set; }
-    }
-
-    public class InfraState
-    {
-        public string BackgroundDataCollection { get; set; }
-        public string AnonymousMetricsCollection { get; set; }
-        public string LightingIntensity { get; set; }
-        public string LightingAutoIntensity { get; set; }
-        public string DeveloperMode { get; set; }
-        public SpeedTestResults WanSpeedTestResults { get; set; }
-        public string AutoUpdateChannel { get; set; }
-        public string AutoUpdateChannelNewVersion { get; set; }
-        public string AutoUpdateChannelStatus { get; set; }
-        public string DeviceMode { get; set; }
-        public string IspConfigurationType { get; set; }
-        public string FirmwareVersion { get; set; }
-        public string SetupState { get; set; }
-        public List<string> ExperimentStateIds { get; set; }
-    }
-
-    public class SpeedTestResults
-    {
-        public string DateTimeSecondsSinceEpoch { get; set; }
-        public string DownloadSpeedBytesPerSecond { get; set; }
-        public string UploadSpeedBytesPerSecond { get; set; }
-        public string TotalBytesDownloaded { get; set; }
-        public string TotalBytesUploaded { get; set; }
+        #endregion Parsing Functions
     }
 }

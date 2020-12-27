@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "onhub", "onhub.csproj", "{6CE0CF81-C453-44A3-ADED-6163EAF9F84A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMW.Google.OnHub.Collector", "src\JMW.Google.OnHub.Collector\JMW.Google.OnHub.Collector.csproj", "{6CE0CF81-C453-44A3-ADED-6163EAF9F84A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{24F5E14E-B71C-4456-B6EE-FD0DD59372CC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMW.Google.OnHub.Console", "src\JMW.Google.OnHub.Console\JMW.Google.OnHub.Console.csproj", "{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,10 @@ Global
 		{6CE0CF81-C453-44A3-ADED-6163EAF9F84A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CE0CF81-C453-44A3-ADED-6163EAF9F84A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE0CF81-C453-44A3-ADED-6163EAF9F84A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>JMW.Google.OnHub.Collector</AssemblyName>
+    <RootNamespace>JMW.Google.OnHub.Collector</RootNamespace>
+    <Description>A library to pull data from the Google WIFI router, also known as Google OnHub and return it in standard JSON</Description>
+    <Copyright>2020 Jason Wall</Copyright>
+    <PackageProjectUrl>https://github.com/walljm/googlewifionhub</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/walljm/googlewifionhub</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Projects\walljm\onhub\src\JMW.Google.OnHub.Collector\JMW.Google.OnHub.Collector.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.14.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>

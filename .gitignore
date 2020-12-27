@@ -2,35 +2,6 @@ out/
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,visualstudio,visualstudiocode,dotnetcore,aspnetcore,angular
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,linux,visualstudio,visualstudiocode,dotnetcore,aspnetcore,angular
-
-### Angular ###
-## Angular ##
-# compiled output
-dist/
-tmp/
-app/**/*.js
-app/**/*.js.map
-
-# dependencies
-node_modules/
-bower_components/
-
-# IDEs and editors
-.idea/
-
-# misc
-.sass-cache/
-connect.lock/
-coverage/
-libpeerconnection.log/
-npm-debug.log
-testem.log
-typings/
-
-# e2e
-e2e/*.js
-e2e/*.map
-
 # System Files
 .DS_Store/
 
@@ -78,10 +49,6 @@ TestResult.xml
 dlldata.c
 
 # DNX
-project.lock.json
-project.fragment.lock.json
-artifacts/
-
 *_i.c
 *_p.c
 *_i.h
@@ -109,17 +76,6 @@ artifacts/
 
 # Chutzpah Test files
 _Chutzpah*
-
-# Visual C++ cache files
-ipch/
-*.aps
-*.ncb
-*.opendb
-*.opensdf
-*.sdf
-*.cachefile
-*.VC.db
-*.VC.VC.opendb
 
 # Visual Studio profiler
 *.psess
