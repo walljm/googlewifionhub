@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JMW.Google.OnHub.Collector\JMW.Google.OnHub.Collector.csproj" />
+    <ProjectReference Include="..\JMW.Google.OnHub\JMW.Google.OnHub.csproj" />
   </ItemGroup>
 
   <ItemGroup>

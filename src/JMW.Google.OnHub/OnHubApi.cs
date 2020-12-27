@@ -1,5 +1,5 @@
 ﻿using Diagnosticreport;
-using JMW.Google.OnHub.Collector.Models;
+using JMW.Google.OnHub.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,9 +9,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace JMW.Google.OnHub.Collector
+namespace JMW.Google.OnHub
 {
-    public class ApiVersion1
+    public class OnHubApi
     {
         private static readonly HttpClient client = new HttpClient();
 

@@ -17,7 +17,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace JMW.Google.OnHub.Collector
+namespace JMW.Google.OnHub
 {
     public static class Extensions
     {

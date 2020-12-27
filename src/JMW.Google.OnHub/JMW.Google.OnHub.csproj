@@ -3,18 +3,14 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>JMW.Google.OnHub.Collector</AssemblyName>
-    <RootNamespace>JMW.Google.OnHub.Collector</RootNamespace>
+    <AssemblyName>JMW.Google.OnHub</AssemblyName>
+    <RootNamespace>JMW.Google.OnHub</RootNamespace>
     <Description>A library to pull data from the Google WIFI router, also known as Google OnHub and return it in standard JSON</Description>
     <Copyright>2020 Jason Wall</Copyright>
     <PackageProjectUrl>https://github.com/walljm/googlewifionhub</PackageProjectUrl>
     <RepositoryUrl>https://github.com/walljm/googlewifionhub</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Projects\walljm\onhub\src\JMW.Google.OnHub.Collector\JMW.Google.OnHub.Collector.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

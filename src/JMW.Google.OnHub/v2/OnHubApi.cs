@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace JMW.Google.OnHub.Collector
+namespace JMW.Google.OnHub.v2
 {
-    public class ApiVersion2
+    public class OnHubApi
     {
         private static readonly HttpClient client = new HttpClient();
 
@@ -25,7 +25,7 @@ namespace JMW.Google.OnHub.Collector
             var tokenResponse = await client.PostAsync("https://oauthaccountmanager.googleapis.com/v1/issuetoken",
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
-                    {"app_id", "com.google.JMW.Google.OnHub.Collector"},
+                    {"app_id", "com.google.JMW.Google.OnHub"},
                     {"client_id", "586698244315-vc96jg3mn4nap78iir799fc2ll3rk18s.apps.googleusercontent.com"},
                     {"hl", "en-US"},
                     {"lib_ver", "3.3"},

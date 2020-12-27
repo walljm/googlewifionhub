@@ -44,13 +44,13 @@ namespace JMW.Google.OnHub.Console
                     opts = o;
                 })
                 ;
-            
+
             if (opts == null)
             {
                 return;
             }
 
-            var data = await Collector.ApiVersion1.GetData(target);
+            var data = await OnHubApi.GetData(target);
             if (opts.AsJson)
             {
                 var jsonOpts = new JsonSerializerOptions()
