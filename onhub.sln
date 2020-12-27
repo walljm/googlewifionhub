@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.runsettings = .runsettings
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMW.Google.OnHub.Console", "src\JMW.Google.OnHub.Console\JMW.Google.OnHub.Console.csproj", "{96103488-BD4D-4EC4-8861-86ECB7B7A1F5}"

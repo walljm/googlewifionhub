@@ -10,8 +10,8 @@ namespace JMW.Google.OnHub.Console
 
     public class Options
     {
-        [Option('t', "target",
-            HelpText = "The IP Address of the Google Wifi Router", Required = true)]
+        [Option('t', "target", Default = "192.168.85.1",
+            HelpText = "The IP Address of the Google Wifi Router")]
         public string Target { get; set; }
 
         [Option('j', "json", Default = false,

@@ -20,17 +20,23 @@ $ dotnet build
 
 ## Usage
 
-To print out the data on the console, just pass in the router ip like so
+To print out the data on the console, just call the utility.
 ```bash
-onhub -t 192.168.84.1
+onhub
+```
+
+The default ip target for Google OnHub Wifi is `192.168.85.1`.  If you have a different router ip 
+you can pass the router ip in via the `-t` or `--target` option
+```bash
+onhub -t 192.168.85.1
 ```
 
 To get the data back as JSON add the `-j` or `--json` flag
 ```bash
-onhub -t 192.168.84.1 -j true
+onhub -t 192.168.85.1 -j true
 ```
 
-To get the data back a specific category of data use the `-c` or `--category` flag 
+To get the data back a specific category of data use the `-c` or `--category` option 
 with one of the supported options:
 
 * all (default)
@@ -39,7 +45,7 @@ with one of the supported options:
 * ifc
 
 ```bash
-onhub -t 192.168.84.1 -c arp
+onhub -t 192.168.85.1 -c arp
 ```
 
 ## Contributing

@@ -21,4 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\JMW.Google.OnHub.Collector\JMW.Google.OnHub.Collector.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Update="C:\Projects\walljm\onhub\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 </Project>
