@@ -6,12 +6,17 @@
     <AssemblyName>JMW.Google.OnHub</AssemblyName>
     <RootNamespace>JMW.Google.OnHub</RootNamespace>
     <Description>A library to pull data from the Google WIFI router, also known as Google OnHub and return it in standard JSON</Description>
+    <PackageDescription>A library to pull data from Google WIFI routr, also known as Google OnHub and return it in standard JSON</PackageDescription>
+    <PackageId>JMW.Google.OnHub</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Jason Wall</Authors>
+    <Company>walljm</Company>
     <Copyright>2020 Jason Wall</Copyright>
     <PackageProjectUrl>https://github.com/walljm/googlewifionhub</PackageProjectUrl>
     <RepositoryUrl>https://github.com/walljm/googlewifionhub</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
-  </PropertyGroup>
+    </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
