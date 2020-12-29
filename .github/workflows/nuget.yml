@@ -17,14 +17,14 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.101
-        source-url: https://nuget.pkg.github.com/walljm/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Build solution and generate NuGet package
-      run: dotnet pack ./src/JMW.Google.OnHub -c Release -o out  
-    - name: Push generated package to GitHub registry
-      run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true
+      run: dotnet build ./src/JMW.Google.OnHub/JMW.Google.OnHub.csproj -c Release --no-restore
+    - name: Publish to NuGet
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+        PROJECT_FILE_PATH: src/JMW.Google.OnHub/JMW.Google.OnHub.csproj
+        VERSION_REGEX: '^\s*<PackageVersion>(.*)<\/PackageVersion>\s*$'
+        TAG_FORMAT: '*'
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
