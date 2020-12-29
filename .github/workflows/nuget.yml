@@ -2,12 +2,8 @@ name: Nuget Publish
 
 on:
   push:
-#    tags:        
-#      - v*           # Push events to version tags
-    branches: [ main ]
-  pull_request:
-#    types: [closed]
-    branches: [ main ]
+    tags:        
+      - v*           # Push events to version tags
 
 jobs:
   build:
