@@ -1,0 +1,33 @@
+name: Nuget Publish
+
+on:
+  push:
+#    tags:        
+#      - v*           # Push events to version tags
+    branches: [ main ]
+  pull_request:
+#    types: [closed]
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.101
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build ./src/JMW.Google.OnHub/JMW.Google.OnHub.csproj -c Release --no-restore
+    - name: Publish to NuGet
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+        PROJECT_FILE_PATH: src/JMW.Google.OnHub/JMW.Google.OnHub.csproj
+        VERSION_REGEX: '^\s*<Version>(.*)<\/Version>\s*$'
+        TAG_FORMAT: '*'
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
