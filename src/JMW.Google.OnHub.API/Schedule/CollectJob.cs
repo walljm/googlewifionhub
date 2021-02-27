@@ -21,7 +21,9 @@ namespace JMW.Google.OnHub.API.Schedule
             quartz.AddTrigger(opts => opts
                 .ForJob(nameof(CollectJob))
                 .WithIdentity(nameof(CollectJob))
-                .WithCronSchedule(cron)
+                .WithCronSchedule(cron,
+                    b => b.WithMisfireHandlingInstructionDoNothing() // if it misfires, update to the next fire time and proceed as normal
+                )
                 .StartAt(DateTimeOffset.UtcNow.AddSeconds(15))); // give the service time to start... and do validation
 
             return quartz;
@@ -47,7 +49,7 @@ namespace JMW.Google.OnHub.API.Schedule
 
         public async Task Execute(IJobExecutionContext context)
         {
-            logger.LogInformation("Hello world!");
+            logger.LogInformation("Begginning OnHub Collection.");
 
             var target = IPAddress.Parse(this.opts.CurrentValue.Target);
 
@@ -67,6 +69,7 @@ namespace JMW.Google.OnHub.API.Schedule
                     })
                     .RunAsync();
             }
+
             this.context.SaveChanges();
         }
     }
