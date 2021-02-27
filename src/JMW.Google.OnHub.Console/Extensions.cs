@@ -12,6 +12,7 @@ namespace JMW.Extensions.Text
             public PropertyInfo Info { get; set; }
             public string Name { get; set; }
             public int Width { get; set; }
+            public bool IsList { get; set; }
         }
 
         /// <summary>
@@ -25,7 +26,12 @@ namespace JMW.Extensions.Text
                 "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
         }
 
-        public static void WriteAsTable<T>(this IEnumerable<T> objs, Action<string> write, char columnDivider = '-')
+        public static bool IsEnumerable(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+        }
+
+        public static void WriteAsTable<T>(this IEnumerable<T> objs, Action<string> write, char columnDivider = '-', string indent = "", string propDescription = "")
         {
             if (!objs.Any())
             {
@@ -37,7 +43,7 @@ namespace JMW.Extensions.Text
             foreach (var group in groups)
             {
                 var t = group.Key;
-                write($" Record Type: {t.Name}{Environment.NewLine}");
+                write($"{indent}  Record Type: {t.Name} {propDescription}{Environment.NewLine}");
                 var fArray = t
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(propInfo =>
@@ -46,7 +52,8 @@ namespace JMW.Extensions.Text
                         {
                             Info = propInfo,
                             Name = propInfo.Name.SpaceByCamelCase(),
-                            Width = 0
+                            Width = 0,
+                            IsList = propInfo.PropertyType.IsEnumerable()
                         };
                     })
                     .ToList();
@@ -63,28 +70,38 @@ namespace JMW.Extensions.Text
                 }
 
                 // column headers.
-                foreach (var prop in fArray)
+                write(indent);
+                foreach (var prop in fArray.Where(o => !o.IsList))
                 {
                     write($"  {prop.Name.PadRight(prop.Width + 2)}");
                 }
                 write(Environment.NewLine);
 
                 // column divider
-                foreach (var prop in fArray)
+                write(indent);
+                foreach (var prop in fArray.Where(o => !o.IsList))
                 {
-                    write($"  {string.Empty.PadRight(prop.Width, columnDivider)}  ");
+                    write($"  {string.Empty.PadRight(prop.Width + 2, columnDivider)}");
                 }
                 write(Environment.NewLine);
 
                 // data
                 foreach (var d in group)
                 {
-                    foreach (var prop in fArray)
+                    write(indent);
+                    foreach (var prop in fArray.Where(o => !o.IsList))
                     {
                         var v = prop.Info.GetValue(d)?.ToString() ?? "";
                         write($"  {v.PadRight(prop.Width + 2)}");
                     }
                     write(Environment.NewLine);
+                    foreach (var prop in fArray.Where(o => o.IsList))
+                    {
+                        var v = prop.Info.GetValue(d);
+                        MethodInfo method = typeof(Extensions).GetMethod(nameof(Extensions.WriteAsTable));
+                        MethodInfo generic = method.MakeGenericMethod(prop.Info.PropertyType.GetGenericArguments()[0]);
+                        generic.Invoke(null, new[] { v, write, columnDivider, $"  {indent}", prop.Name });
+                    }
                 }
                 write(Environment.NewLine);
             }

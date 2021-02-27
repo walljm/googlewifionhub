@@ -39,6 +39,7 @@ namespace JMW.Google.OnHub.Console
                             "A collection target is required.  Please pass the IPv4 address of your Google Wifi Router using one of the following:");
                         Console.WriteLine(" -t 192.168.84.1");
                         Console.WriteLine(" --target 192.168.84.1");
+                        return;
                     }
 
                     opts = o;
