@@ -9,18 +9,21 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JMW.Google.OnHub.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20210227192506_Initial")]
+    [Migration("20210227200145_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.3");
 
             modelBuilder.Entity("JMW.Google.OnHub.API.Model.Arp", b =>
                 {
                     b.Property<string>("IpAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("FirstSeen")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Flags")
@@ -37,13 +40,10 @@ namespace JMW.Google.OnHub.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset>("LastSeen")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Mask")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenFrom")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenTo")
                         .HasColumnType("TEXT");
 
                     b.HasKey("IpAddress");
@@ -256,6 +256,7 @@ namespace JMW.Google.OnHub.API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IfIndex")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IsLocal")

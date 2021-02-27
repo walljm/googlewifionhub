@@ -133,7 +133,7 @@ namespace JMW.Google.OnHub.API.Schedule
                 var timeoutDate =
                     DateTimeOffset.UtcNow.Subtract(
                         new TimeSpan(cacheOptions.CurrentValue.CurrentTimeoutInDays, 0, 0, 0));
-                if (currentArp.SeenTo < timeoutDate)
+                if (currentArp.LastSeen < timeoutDate)
                 { // yup, its too old, take it out.
                     this.context.Arp.Remove(currentArp);
                     continue;
@@ -144,7 +144,7 @@ namespace JMW.Google.OnHub.API.Schedule
                 {
                     // we use the current time here because if the hw address has changed, then the IP
                     //  has been reassigned to a new device, and the seen range needs to be reset.
-                    currentArp.SeenFrom = dt; // history depends on this.
+                    currentArp.FirstSeen = dt; // history depends on this.
                 }
 
                 // now update the other info so the cache is fresh.
@@ -153,12 +153,12 @@ namespace JMW.Google.OnHub.API.Schedule
                 currentArp.Mask = arp.Mask;
                 currentArp.Flags = arp.Flags;
                 currentArp.Interface = arp.Interface;
-                currentArp.SeenTo = dt;
+                currentArp.LastSeen = dt;
 
                 this.context.Arp.Update(currentArp);
 
                 // handle history.
-                var historicalArp = await this.context.ArpHistory.FindAsync(currentArp.IpAddress, currentArp.HwAddress, currentArp.SeenFrom);
+                var historicalArp = await this.context.ArpHistory.FindAsync(currentArp.IpAddress, currentArp.HwAddress, currentArp.FirstSeen);
                 if (historicalArp == null) // its never been seen before...
                 {
                     // this means that the hw address and seenfrom are new, since we will have added a history record above

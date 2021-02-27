@@ -14,11 +14,14 @@ namespace JMW.Google.OnHub.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "5.0.3");
 
             modelBuilder.Entity("JMW.Google.OnHub.API.Model.Arp", b =>
                 {
                     b.Property<string>("IpAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("FirstSeen")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Flags")
@@ -35,13 +38,10 @@ namespace JMW.Google.OnHub.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset>("LastSeen")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Mask")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenFrom")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenTo")
                         .HasColumnType("TEXT");
 
                     b.HasKey("IpAddress");
@@ -254,6 +254,7 @@ namespace JMW.Google.OnHub.API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IfIndex")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IsLocal")

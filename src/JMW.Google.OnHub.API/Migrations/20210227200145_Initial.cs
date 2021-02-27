@@ -12,8 +12,8 @@ namespace JMW.Google.OnHub.API.Migrations
                 columns: table => new
                 {
                     IpAddress = table.Column<string>(type: "TEXT", nullable: false),
-                    SeenFrom = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    SeenTo = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    FirstSeen = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    LastSeen = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     HwAddress = table.Column<string>(type: "TEXT", nullable: false),
                     HwType = table.Column<string>(type: "TEXT", nullable: true),
                     Interface = table.Column<string>(type: "TEXT", nullable: false),
@@ -118,7 +118,7 @@ namespace JMW.Google.OnHub.API.Migrations
                     HwAddress = table.Column<string>(type: "TEXT", nullable: false),
                     SeenFrom = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     SeenTo = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    IfIndex = table.Column<string>(type: "TEXT", nullable: true),
+                    IfIndex = table.Column<string>(type: "TEXT", nullable: false),
                     IsLocal = table.Column<string>(type: "TEXT", nullable: true),
                     Age = table.Column<string>(type: "TEXT", nullable: true)
                 },

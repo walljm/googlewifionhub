@@ -6,12 +6,12 @@ namespace JMW.Google.OnHub.API.Model
     public class Arp : OnHub.Model.Arp
     {
         [Required]
-        public DateTimeOffset SeenFrom { get; set; }
+        public DateTimeOffset FirstSeen { get; set; }
 
         [Required]
-        public DateTimeOffset SeenTo { get; set; }
+        public DateTimeOffset LastSeen { get; set; }
 
-        public static Arp ToArp(OnHub.Model.Arp arp, DateTimeOffset from, DateTimeOffset to)
+        public static Arp ToArp(OnHub.Model.Arp arp, DateTimeOffset first, DateTimeOffset last)
         {
             return new Arp
             {
@@ -21,8 +21,8 @@ namespace JMW.Google.OnHub.API.Model
                 HwAddress = arp.HwAddress,
                 Mask = arp.Mask,
                 Interface = arp.Interface,
-                SeenFrom = from,
-                SeenTo = to
+                FirstSeen = first,
+                LastSeen = last
             };
         }
     }
@@ -45,8 +45,8 @@ namespace JMW.Google.OnHub.API.Model
                 HwAddress = arp.HwAddress,
                 Mask = arp.Mask,
                 Interface = arp.Interface,
-                SeenFrom = arp.SeenFrom,
-                SeenTo = arp.SeenTo
+                SeenFrom = arp.FirstSeen,
+                SeenTo = arp.LastSeen
             };
         }
     }
