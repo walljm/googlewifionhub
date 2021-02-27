@@ -1,5 +1,5 @@
 ﻿using Diagnosticreport;
-using JMW.Google.OnHub.Models;
+using JMW.Google.OnHub.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,10 @@ namespace JMW.Google.OnHub
 {
     public class OnHubApi
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient()
+        {
+            Timeout = new TimeSpan(0, 5, 0) // 5 min timeout... these things can take a while...
+        };
 
         private static readonly Dictionary<string, string> hwTypes = new Dictionary<string, string>
         {
@@ -72,13 +75,16 @@ namespace JMW.Google.OnHub
             {"0x40", "Dont Publish"},
         };
 
+        private const string inetTypeIPv4 = "IPv4";
+        private const string inetTypeIPv6 = "IPv6";
+
         public static async Task<DeviceState> GetData(IPAddress target)
         {
             var dict = await getDiagnosticReport(target);
             var netState = extractDeviceState(dict["netState"]);
             netState.ArpCache = extractArps(dict["/proc/net/arp"]);
             netState.Interfaces = extractInterfaces(dict["/bin/ip -s -d addr"]);
-            netState.CamTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
+            netState.MacTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
             return netState;
         }
 
@@ -87,6 +93,13 @@ namespace JMW.Google.OnHub
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Host", "localhost");
             var req = await client.GetAsync($"http://{target}/api/v1/diagnostic-report");
+
+            // if there was an error let us know
+            if (!req.IsSuccessStatusCode)
+            {
+                throw new Exception(req.ReasonPhrase);
+            }
+
             var stream = await req.Content.ReadAsStreamAsync();
             var compressedBytes = readBytes(stream);
             var decompressedBytes = decompress(compressedBytes);
@@ -115,27 +128,23 @@ namespace JMW.Google.OnHub
         private static byte[] readBytes(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
+            using MemoryStream ms = new MemoryStream();
+            int read;
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-
-                return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
+
+            return ms.ToArray();
         }
 
         private static byte[] decompress(byte[] data)
         {
-            using (var compressedStream = new MemoryStream(data))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
-            using (var resultStream = new MemoryStream())
-            {
-                zipStream.CopyTo(resultStream);
-                return resultStream.ToArray();
-            }
+            using var compressedStream = new MemoryStream(data);
+            using var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
+            using var resultStream = new MemoryStream();
+            zipStream.CopyTo(resultStream);
+            return resultStream.ToArray();
         }
 
         #region Parsing Functions
@@ -154,102 +163,117 @@ namespace JMW.Google.OnHub
 
                 if (!line.StartsWith(" "))
                 {
-                    ifc = new Interface();
-                    ifc.IfIndex = line.ParseToIndexOf(":");
-                    ifc.Name = line.If(Extensions.ParseAfterIndexOf_PlusLength, ":").ParseToIndexOf(":");
-                    ifc.Info = line.If(Extensions.ParseAfterIndexOf_PlusLength, "<").ParseToIndexOf(">");
-                    ifc.MTU = line.If(Extensions.ParseAfterIndexOf_PlusLength, "mtu ").ParseToIndexOf(" ");
-                    ifc.Qdisc = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qdisc ").ParseToIndexOf(" ");
-                    ifc.State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" ");
-                    ifc.Group = line.If(Extensions.ParseAfterIndexOf_PlusLength, "group ").ParseToIndexOf(" ");
-                    ifc.Qlen = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qlen ").ParseToIndexOf(" ");
+                    ifc = new Interface
+                    {
+                        IfIndex = line.ParseToIndexOf(":"),
+                        Name = line.If(Extensions.ParseAfterIndexOf_PlusLength, ":").Trim().ParseToIndexOf(" ").Trim(':', ' '),
+                        Info = line.If(Extensions.ParseAfterIndexOf_PlusLength, "<").ParseToIndexOf(">").Trim(),
+                        MTU = line.If(Extensions.ParseAfterIndexOf_PlusLength, "mtu ").ParseToIndexOf(" ").Trim(),
+                        Qdisc = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qdisc ").ParseToIndexOf(" ").Trim(),
+                        State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" ").Trim(),
+                        Group = line.If(Extensions.ParseAfterIndexOf_PlusLength, "group ").ParseToIndexOf(" ").Trim(),
+                        Qlen = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qlen ").ParseToIndexOf(" ").Trim()
+                    };
+
                     records.Add(ifc);
                 }
                 else if (line.Contains("link/"))
                 {
-                    ifc.Link = line.If(Extensions.ParseAfterIndexOf_PlusLength, "link/").ParseToIndexOf(" ");
-                    ifc.MAC = line.Trim().ParseAfterIndexOf_PlusLength(" ").ParseToIndexOf(" ");
-                    ifc.BRD = line.If(Extensions.ParseAfterIndexOf_PlusLength, "brd ").ParseToIndexOf(" ");
+                    ifc.Link = line.If(Extensions.ParseAfterIndexOf_PlusLength, "link/").ParseToIndexOf(" ").Trim();
+                    ifc.MAC = line.Trim().ParseAfterIndexOf_PlusLength(" ").ParseToIndexOf(" ").Trim();
+                    ifc.BRD = line.If(Extensions.ParseAfterIndexOf_PlusLength, "brd ").ParseToIndexOf(" ").Trim();
                     ifc.Promiscuity = line.If(Extensions.ParseAfterIndexOf_PlusLength, "promiscuity ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.NumTxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numtxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.NumRxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numrxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                 }
                 else if (line.Contains("inet "))
                 {
-                    ifc.Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet ").ParseToIndexOf(" ");
-                    ifc.InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim();
-                    line = lines[++i];
-                    ifc.InetValidLifetime = line.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
-                        .ParseToIndexOf(" ");
-                    ifc.InetPreferredLifetime = line.If(Extensions.ParseAfterIndexOf_PlusLength, "preferred_lft ")
-                        .ParseToIndexOf(" ");
+                    var l2 = lines[++i];
+
+                    ifc.Inet.Add(new InetInfo
+                    {
+                        IfIndex = ifc.IfIndex,
+                        InetType = inetTypeIPv4,
+                        Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet ").ParseToIndexOf(" ").Trim(),
+                        InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
+                        InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
+                        .ParseToIndexOf(" ").Trim(),
+                        InetPreferredLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "preferred_lft ")
+                        .ParseToIndexOf(" ").Trim()
+                    });
                 }
                 else if (line.Contains("inet6 "))
                 {
-                    ifc.Inet6 = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet6 ").ParseToIndexOf(" ");
-                    ifc.Inet6Scope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim();
-                    line = lines[++i];
-                    ifc.Inet6ValidLifetime = line.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
-                        .ParseToIndexOf(" ");
-                    ifc.Inet6PreferredLifetime = line.If(Extensions.ParseAfterIndexOf_PlusLength, "preferred_lft ")
-                        .ParseToIndexOf(" ");
+                    var l2 = lines[++i];
+
+                    ifc.Inet.Add(new InetInfo
+                    {
+                        IfIndex = ifc.IfIndex,
+                        InetType = inetTypeIPv6,
+                        Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet6 ").ParseToIndexOf(" ").Trim(),
+                        InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
+                        InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
+                            .ParseToIndexOf(" ").Trim(),
+                        InetPreferredLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "preferred_lft ")
+                            .ParseToIndexOf(" ").Trim()
+                    });
                 }
                 else if (line.Contains("RX: "))
                 {
                     line = lines[++i];
                     var fields = line.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    ifc.RxBytes = fields[0];
-                    ifc.RxPackets = fields[1];
-                    ifc.RxErrors = fields[2];
-                    ifc.RxDropped = fields[3];
-                    ifc.RxOverrun = fields[4];
-                    ifc.RxMcast = fields[5];
+                    ifc.RxBytes = fields[0].Trim();
+                    ifc.RxPackets = fields[1].Trim();
+                    ifc.RxErrors = fields[2].Trim();
+                    ifc.RxDropped = fields[3].Trim();
+                    ifc.RxOverrun = fields[4].Trim();
+                    ifc.RxMcast = fields[5].Trim();
                 }
                 else if (line.Contains("TX: "))
                 {
                     line = lines[++i];
                     var fields = line.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    ifc.TxBytes = fields[0];
-                    ifc.TxPackets = fields[1];
-                    ifc.TxErrors = fields[2];
-                    ifc.TxDropped = fields[3];
-                    ifc.TxOverrun = fields[4];
-                    ifc.TxMcast = fields[5];
+                    ifc.TxBytes = fields[0].Trim();
+                    ifc.TxPackets = fields[1].Trim();
+                    ifc.TxErrors = fields[2].Trim();
+                    ifc.TxDropped = fields[3].Trim();
+                    ifc.TxOverrun = fields[4].Trim();
+                    ifc.TxMcast = fields[5].Trim();
                 }
                 else if (line.Contains("bridge  "))
                 {
                     ifc.StpForwardDelay = line.If(Extensions.ParseAfterIndexOf_PlusLength, "forward_delay ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.StpHelloTime = line.If(Extensions.ParseAfterIndexOf_PlusLength, "hello_time ")
-                        .ParseToIndexOf(" ");
-                    ifc.StpMaxAge = line.If(Extensions.ParseAfterIndexOf_PlusLength, "max_age ").ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
+                    ifc.StpMaxAge = line.If(Extensions.ParseAfterIndexOf_PlusLength, "max_age ").ParseToIndexOf(" ").Trim();
                     ifc.NumTxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numtxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.NumRxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numrxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                 }
                 else if (line.Contains("bridge_slave  "))
                 {
-                    ifc.State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" ");
-                    ifc.StpPriority = line.If(Extensions.ParseAfterIndexOf_PlusLength, "priority ").ParseToIndexOf(" ");
-                    ifc.StpCost = line.If(Extensions.ParseAfterIndexOf_PlusLength, "cost ").ParseToIndexOf(" ");
-                    ifc.StpHairpin = line.If(Extensions.ParseAfterIndexOf_PlusLength, "hairpin ").ParseToIndexOf(" ");
-                    ifc.StpGuard = line.If(Extensions.ParseAfterIndexOf_PlusLength, "guard ").ParseToIndexOf(" ");
+                    ifc.State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" ").Trim();
+                    ifc.StpPriority = line.If(Extensions.ParseAfterIndexOf_PlusLength, "priority ").ParseToIndexOf(" ").Trim();
+                    ifc.StpCost = line.If(Extensions.ParseAfterIndexOf_PlusLength, "cost ").ParseToIndexOf(" ").Trim();
+                    ifc.StpHairpin = line.If(Extensions.ParseAfterIndexOf_PlusLength, "hairpin ").ParseToIndexOf(" ").Trim();
+                    ifc.StpGuard = line.If(Extensions.ParseAfterIndexOf_PlusLength, "guard ").ParseToIndexOf(" ").Trim();
                     ifc.StpRootBlock = line.If(Extensions.ParseAfterIndexOf_PlusLength, "root_block ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.StpFastLeave = line.If(Extensions.ParseAfterIndexOf_PlusLength, "fast_leave ")
-                        .ParseToIndexOf(" ");
-                    ifc.StpLearning = line.If(Extensions.ParseAfterIndexOf_PlusLength, "learning ").ParseToIndexOf(" ");
-                    ifc.StpFlood = line.If(Extensions.ParseAfterIndexOf_PlusLength, "flood ").ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
+                    ifc.StpLearning = line.If(Extensions.ParseAfterIndexOf_PlusLength, "learning ").ParseToIndexOf(" ").Trim();
+                    ifc.StpFlood = line.If(Extensions.ParseAfterIndexOf_PlusLength, "flood ").ParseToIndexOf(" ").Trim();
                     ifc.StpMcastFastLeave = line.If(Extensions.ParseAfterIndexOf_PlusLength, "mcast_fast_leave ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.NumTxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numtxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                     ifc.NumRxQueues = line.If(Extensions.ParseAfterIndexOf_PlusLength, "numrxqueues ")
-                        .ParseToIndexOf(" ");
+                        .ParseToIndexOf(" ").Trim();
                 }
             }
 
@@ -265,12 +289,12 @@ namespace JMW.Google.OnHub
                 var fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 records.Add(new Arp
                 {
-                    IpAddress = fields[0],
-                    HwType = hwTypes.ContainsKey(fields[1]) ? hwTypes[fields[1]] : "Unassigned",
-                    Flags = flags.ContainsKey(fields[2]) ? flags[fields[2]] : "Unknown",
-                    HwAddress = fields[3],
-                    Mask = fields[4],
-                    Device = fields[5]
+                    IpAddress = fields[0].Trim(),
+                    HwType = hwTypes.ContainsKey(fields[1]) ? hwTypes[fields[1]] : "Unassigned".Trim(),
+                    Flags = flags.ContainsKey(fields[2]) ? flags[fields[2]] : "Unknown".Trim(),
+                    HwAddress = fields[3].Trim(),
+                    Mask = fields[4].Trim(),
+                    Interface = fields[5].Trim()
                 });
             }
 
@@ -286,10 +310,10 @@ namespace JMW.Google.OnHub
                 var fields = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 records.Add(new Mac
                 {
-                    IfIndex = fields[0],
-                    HwAddress = fields[1],
-                    IsLocal = fields[2],
-                    Age = fields[3]
+                    IfIndex = fields[0].Trim(),
+                    HwAddress = fields[1].Trim(),
+                    IsLocal = fields[2].Trim(),
+                    Age = fields[3].Trim()
                 });
             }
 

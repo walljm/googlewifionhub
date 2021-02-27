@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace JMW.Google.OnHub.Models
+namespace JMW.Google.OnHub.Model
 {
     public class WanStatus
     {

@@ -39,6 +39,7 @@ namespace JMW.Google.OnHub.Console
                             "A collection target is required.  Please pass the IPv4 address of your Google Wifi Router using one of the following:");
                         Console.WriteLine(" -t 192.168.84.1");
                         Console.WriteLine(" --target 192.168.84.1");
+                        return;
                     }
 
                     opts = o;
@@ -69,7 +70,7 @@ namespace JMW.Google.OnHub.Console
                         break;
 
                     case Categories.cam:
-                        Console.Write(JsonSerializer.Serialize(data.CamTable, jsonOpts));
+                        Console.Write(JsonSerializer.Serialize(data.MacTable, jsonOpts));
                         break;
 
                     case Categories.ifc:
@@ -83,7 +84,7 @@ namespace JMW.Google.OnHub.Console
             {
                 case Categories.all:
                     data.ArpCache.WriteAsTable(Console.Write);
-                    data.CamTable.WriteAsTable(Console.Write);
+                    data.MacTable.WriteAsTable(Console.Write);
                     data.Interfaces.WriteAsTable(Console.Write);
                     break;
 
@@ -92,7 +93,7 @@ namespace JMW.Google.OnHub.Console
                     break;
 
                 case Categories.cam:
-                    data.CamTable.WriteAsTable(Console.Write);
+                    data.MacTable.WriteAsTable(Console.Write);
                     break;
 
                 case Categories.ifc:

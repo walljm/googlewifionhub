@@ -2,7 +2,7 @@
   "profiles": {
     "JMW.Google.OnHub.Console": {
       "commandName": "Project",
-      "commandLineArgs": "-j -t 1.1.1.1"
+      "commandLineArgs": "-t 192.168.1.1"
     }
   }
 }

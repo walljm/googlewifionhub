@@ -33,7 +33,7 @@ onhub -t 192.168.85.1
 
 To get the data back as JSON add the `-j` or `--json` flag
 ```bash
-onhub -t 192.168.85.1 -j true
+onhub -t 192.168.85.1 -j
 ```
 
 To get the data back a specific category of data use the `-c` or `--category` option 
