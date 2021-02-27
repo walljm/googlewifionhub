@@ -36,11 +36,14 @@ namespace JMW.Google.OnHub.API
 
             services.AddDbContext<ApplicationContext>();
 
-
             services.AddOptions<CollectionOptions>()
                 .Bind(Configuration.Section<CollectionOptions>())
                 .ValidateDataAnnotations();
-            
+
+            services.AddOptions<CacheOptions>()
+                .Bind(Configuration.Section<CacheOptions>())
+                .ValidateDataAnnotations();
+
             #region Quartz
 
             services.AddQuartz(q =>
@@ -86,7 +89,6 @@ namespace JMW.Google.OnHub.API
                 endpoints.MapControllers();
             });
 
-            
             // validate the options.
             try
             {

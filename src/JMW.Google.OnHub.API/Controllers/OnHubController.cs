@@ -1,7 +1,6 @@
 ﻿using JMW.Google.OnHub.API.Data;
 using JMW.Google.OnHub.API.Model;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Net;
 
 namespace JMW.Google.OnHub.API.Controllers
@@ -20,10 +19,17 @@ namespace JMW.Google.OnHub.API.Controllers
         }
 
         [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Arp))]
+        [HttpGet("arp")]
+        public IActionResult GetArp()
+        {
+            return Ok(this.context.Arp);
+        }
+
+        [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(ArpHistory))]
         [HttpGet("arp/history")]
         public IActionResult GetArpHistory()
         {
-            return Ok(this.context.Arp.ToList());
+            return Ok(this.context.ArpHistory);
         }
     }
 }

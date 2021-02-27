@@ -7,6 +7,6 @@
         public string Flags { get; set; }
         public string HwAddress { get; set; }
         public string Mask { get; set; }
-        public string Device { get; set; }
+        public string Interface { get; set; }
     }
 }

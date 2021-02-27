@@ -9,7 +9,7 @@ namespace JMW.Google.OnHub.API
             var name = typeof(T).Name;
             if (name.EndsWith("Options"))
             {
-                name = name.Substring(0, name.Length - 7);
+                name = name[0..^7];
             }
             return config.GetSection(name)
                 .Get<T>();
@@ -20,7 +20,7 @@ namespace JMW.Google.OnHub.API
             var name = typeof(T).Name;
             if (name.EndsWith("Options"))
             {
-                name = name.Substring(0, name.Length - 7);
+                name = name[0..^7];
             }
             return config.GetSection(name);
         }

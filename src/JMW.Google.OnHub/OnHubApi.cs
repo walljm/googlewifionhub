@@ -13,7 +13,10 @@ namespace JMW.Google.OnHub
 {
     public class OnHubApi
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient()
+        {
+            Timeout = new TimeSpan(0, 5, 0) // 5 min timeout... these things can take a while...
+        }; 
 
         private static readonly Dictionary<string, string> hwTypes = new Dictionary<string, string>
         {
@@ -84,7 +87,6 @@ namespace JMW.Google.OnHub
 
         private static async Task<Dictionary<string, string[]>> getDiagnosticReport(IPAddress target)
         {
-            client.Timeout = new TimeSpan(0, 5, 0); // 5 min timeout... these things can take a while...
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Host", "localhost");
             var req = await client.GetAsync($"http://{target}/api/v1/diagnostic-report");
@@ -94,7 +96,7 @@ namespace JMW.Google.OnHub
             {
                 throw new Exception(req.ReasonPhrase);
             }
-            
+
             var stream = await req.Content.ReadAsStreamAsync();
             var compressedBytes = readBytes(stream);
             var decompressedBytes = decompress(compressedBytes);
@@ -123,27 +125,23 @@ namespace JMW.Google.OnHub
         private static byte[] readBytes(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
+            using MemoryStream ms = new MemoryStream();
+            int read;
+            while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-
-                return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
+
+            return ms.ToArray();
         }
 
         private static byte[] decompress(byte[] data)
         {
-            using (var compressedStream = new MemoryStream(data))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
-            using (var resultStream = new MemoryStream())
-            {
-                zipStream.CopyTo(resultStream);
-                return resultStream.ToArray();
-            }
+            using var compressedStream = new MemoryStream(data);
+            using var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
+            using var resultStream = new MemoryStream();
+            zipStream.CopyTo(resultStream);
+            return resultStream.ToArray();
         }
 
         #region Parsing Functions
@@ -162,15 +160,17 @@ namespace JMW.Google.OnHub
 
                 if (!line.StartsWith(" "))
                 {
-                    ifc = new Interface();
-                    ifc.IfIndex = line.ParseToIndexOf(":");
-                    ifc.Name = line.If(Extensions.ParseAfterIndexOf_PlusLength, ":").ParseToIndexOf(":");
-                    ifc.Info = line.If(Extensions.ParseAfterIndexOf_PlusLength, "<").ParseToIndexOf(">");
-                    ifc.MTU = line.If(Extensions.ParseAfterIndexOf_PlusLength, "mtu ").ParseToIndexOf(" ");
-                    ifc.Qdisc = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qdisc ").ParseToIndexOf(" ");
-                    ifc.State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" ");
-                    ifc.Group = line.If(Extensions.ParseAfterIndexOf_PlusLength, "group ").ParseToIndexOf(" ");
-                    ifc.Qlen = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qlen ").ParseToIndexOf(" ");
+                    ifc = new Interface
+                    {
+                        IfIndex = line.ParseToIndexOf(":"),
+                        Name = line.If(Extensions.ParseAfterIndexOf_PlusLength, ":").ParseToIndexOf(":"),
+                        Info = line.If(Extensions.ParseAfterIndexOf_PlusLength, "<").ParseToIndexOf(">"),
+                        MTU = line.If(Extensions.ParseAfterIndexOf_PlusLength, "mtu ").ParseToIndexOf(" "),
+                        Qdisc = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qdisc ").ParseToIndexOf(" "),
+                        State = line.If(Extensions.ParseAfterIndexOf_PlusLength, "state ").ParseToIndexOf(" "),
+                        Group = line.If(Extensions.ParseAfterIndexOf_PlusLength, "group ").ParseToIndexOf(" "),
+                        Qlen = line.If(Extensions.ParseAfterIndexOf_PlusLength, "qlen ").ParseToIndexOf(" ")
+                    };
                     records.Add(ifc);
                 }
                 else if (line.Contains("link/"))
@@ -278,7 +278,7 @@ namespace JMW.Google.OnHub
                     Flags = flags.ContainsKey(fields[2]) ? flags[fields[2]] : "Unknown",
                     HwAddress = fields[3],
                     Mask = fields[4],
-                    Device = fields[5]
+                    Interface = fields[5]
                 });
             }
 

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JMW.Google.OnHub.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20201227213524_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210227152151_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,9 +23,6 @@ namespace JMW.Google.OnHub.API.Migrations
                     b.Property<string>("IpAddress")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Device")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Flags")
                         .HasColumnType("TEXT");
 
@@ -33,6 +30,9 @@ namespace JMW.Google.OnHub.API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HwType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Interface")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Mask")
@@ -47,6 +47,37 @@ namespace JMW.Google.OnHub.API.Migrations
                     b.HasKey("IpAddress");
 
                     b.ToTable("Arp");
+                });
+
+            modelBuilder.Entity("JMW.Google.OnHub.API.Model.ArpHistory", b =>
+                {
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HwAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenFrom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Flags")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HwType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Interface")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Mask")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenTo")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("IpAddress", "HwAddress", "SeenFrom");
+
+                    b.ToTable("ArpHistory");
                 });
 #pragma warning restore 612, 618
         }
