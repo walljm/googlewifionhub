@@ -84,9 +84,17 @@ namespace JMW.Google.OnHub
 
         private static async Task<Dictionary<string, string[]>> getDiagnosticReport(IPAddress target)
         {
+            client.Timeout = new TimeSpan(0, 5, 0); // 5 min timeout... these things can take a while...
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Host", "localhost");
             var req = await client.GetAsync($"http://{target}/api/v1/diagnostic-report");
+
+            // if there was an error let us know
+            if (!req.IsSuccessStatusCode)
+            {
+                throw new Exception(req.ReasonPhrase);
+            }
+            
             var stream = await req.Content.ReadAsStreamAsync();
             var compressedBytes = readBytes(stream);
             var decompressedBytes = decompress(compressedBytes);
