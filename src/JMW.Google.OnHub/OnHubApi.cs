@@ -75,6 +75,9 @@ namespace JMW.Google.OnHub
             {"0x40", "Dont Publish"},
         };
 
+        private const string InetTypeIPv4 = "IPv4";
+        private const string InetTypeIPv6 = "IPv6";
+
         public static async Task<DeviceState> GetData(IPAddress target)
         {
             var dict = await getDiagnosticReport(target);
@@ -193,7 +196,7 @@ namespace JMW.Google.OnHub
                     ifc.Inet.Add(new InetInfo
                     {
                         IfIndex = ifc.IfIndex,
-                        InetType = "IPv4",
+                        InetType = InetTypeIPv4,
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
@@ -209,7 +212,7 @@ namespace JMW.Google.OnHub
                     ifc.Inet.Add(new InetInfo
                     {
                         IfIndex = ifc.IfIndex,
-                        InetType = "IPv6",
+                        InetType = InetTypeIPv6,
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet6 ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
