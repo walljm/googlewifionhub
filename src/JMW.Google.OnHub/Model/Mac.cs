@@ -1,9 +1,11 @@
-﻿namespace JMW.Google.OnHub.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace JMW.Google.OnHub.Model
 {
     public class Mac
     {
-        public string IfIndex { get; set; }
-        public string HwAddress { get; set; }
+        [Required] public string IfIndex { get; set; }
+        [Required] public string HwAddress { get; set; }
         public string IsLocal { get; set; }
         public string Age { get; set; }
     }

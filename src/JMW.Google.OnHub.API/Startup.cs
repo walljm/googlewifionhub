@@ -29,7 +29,23 @@ namespace JMW.Google.OnHub.API
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "JMW.Google.OnHub.API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "JMW.Google.OnHub.API",
+                    Version = "v1",
+                    Contact = new OpenApiContact
+                    {
+                        Email = "jason@walljm.com",
+                        Name = "Jason Wall",
+                        Url = new Uri("https://www.walljm.com")
+                    },
+                    Description = "This is a service that will poll your Google OnHub regularly and store the information so it can be easily queried via rest.",
+                    License = new OpenApiLicense
+                    {
+                        Name = "MIT",
+                        Url = new Uri("https://github.com/walljm/googlewifionhub/blob/main/LICENSE")
+                    }
+                });
             });
 
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -66,7 +82,6 @@ namespace JMW.Google.OnHub.API
         public void Configure(
             IApplicationBuilder app,
             IWebHostEnvironment env,
-            ApplicationContext context,
             ILogger<Startup> logger,
             IOptions<CollectionOptions> options)
         {
@@ -74,7 +89,7 @@ namespace JMW.Google.OnHub.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JMW.Google.OnHub.API v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JMW.Google.OnHub.API.v1"));
             }
 
             app.UseHttpsRedirection();
@@ -101,16 +116,6 @@ namespace JMW.Google.OnHub.API
                     logger.LogCritical(failure, ex);
                 }
 
-                Environment.Exit(1); // kill immediately
-            }
-
-            try
-            {
-                context.Database.EnsureCreated();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred creating the DB.");
                 Environment.Exit(1); // kill immediately
             }
         }
