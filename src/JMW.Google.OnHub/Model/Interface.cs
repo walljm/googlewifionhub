@@ -1,9 +1,12 @@
-﻿namespace JMW.Google.OnHub.Models
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace JMW.Google.OnHub.Model
 {
     public class Interface
     {
-        public string IfIndex { get; set; }
-        public string Name { get; set; }
+        [Required] public string IfIndex { get; set; }
+        [Required] public string Name { get; set; }
         public string Info { get; set; }
         public string State { get; set; }
         public string MAC { get; set; }
@@ -15,16 +18,6 @@
         public string Qlen { get; set; }
         public string Link { get; set; }
         public string Promiscuity { get; set; }
-
-        public string Inet { get; set; }
-        public string InetScope { get; set; }
-        public string InetValidLifetime { get; set; }
-        public string InetPreferredLifetime { get; set; }
-
-        public string Inet6 { get; set; }
-        public string Inet6Scope { get; set; }
-        public string Inet6ValidLifetime { get; set; }
-        public string Inet6PreferredLifetime { get; set; }
 
         public string NumRxQueues { get; set; }
         public string RxBytes { get; set; }
@@ -54,5 +47,17 @@
         public string StpForwardDelay { get; set; }
         public string StpHelloTime { get; set; }
         public string StpMaxAge { get; set; }
+
+        public List<InetInfo> Inet { get; set; } = new List<InetInfo>();
+    }
+
+    public class InetInfo
+    {
+        [Required] public string IfIndex { get; set; }
+        [Required] public string InetType { get; set; }
+        [Required] public string Inet { get; set; }
+        public string InetScope { get; set; }
+        public string InetValidLifetime { get; set; }
+        public string InetPreferredLifetime { get; set; }
     }
 }
