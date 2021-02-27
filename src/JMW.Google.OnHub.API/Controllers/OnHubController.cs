@@ -17,6 +17,22 @@ namespace JMW.Google.OnHub.API.Controllers
         {
             this.context = context;
         }
+        
+        [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Interface))]
+        [HttpGet("interface")]
+        public IActionResult GetInterface()
+        {
+            return Ok(this.context.Interface);
+        }
+
+        
+        [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(IpInfo))]
+        [HttpGet("ip")]
+        public IActionResult GetInterfaceIps()
+        {
+            return Ok(this.context.InterfaceInets);
+        }
+
 
         [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Arp))]
         [HttpGet("arp")]

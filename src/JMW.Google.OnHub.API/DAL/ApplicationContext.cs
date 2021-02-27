@@ -9,6 +9,9 @@ namespace JMW.Google.OnHub.API.Data
 
         public DbSet<ArpHistory> ArpHistory { get; set; }
 
+        public DbSet<Interface> Interface { get; set; }
+        public DbSet<IpInfo> InterfaceInets { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=app.db");
 
@@ -26,6 +29,12 @@ namespace JMW.Google.OnHub.API.Data
                         o.SeenFrom
                     }
                 );
+
+            modelBuilder.Entity<Interface>()
+                .HasKey(o => o.IfIndex);
+
+            modelBuilder.Entity<IpInfo>()
+                .HasKey(o => new { o.Inet, o.IfIndex });
         }
     }
 }
