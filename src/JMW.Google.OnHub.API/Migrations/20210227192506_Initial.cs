@@ -49,10 +49,10 @@ namespace JMW.Google.OnHub.API.Migrations
                 {
                     IfIndex = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Info = table.Column<string>(type: "TEXT", nullable: true),
-                    State = table.Column<string>(type: "TEXT", nullable: true),
-                    MAC = table.Column<string>(type: "TEXT", nullable: true),
-                    BRD = table.Column<string>(type: "TEXT", nullable: true),
+                    Info = table.Column<string>(type: "TEXT", nullable: false),
+                    State = table.Column<string>(type: "TEXT", nullable: false),
+                    MAC = table.Column<string>(type: "TEXT", nullable: false),
+                    BRD = table.Column<string>(type: "TEXT", nullable: false),
                     MTU = table.Column<string>(type: "TEXT", nullable: true),
                     Qdisc = table.Column<string>(type: "TEXT", nullable: true),
                     Group = table.Column<string>(type: "TEXT", nullable: true),
@@ -99,7 +99,7 @@ namespace JMW.Google.OnHub.API.Migrations
                 {
                     IfIndex = table.Column<string>(type: "TEXT", nullable: false),
                     Inet = table.Column<string>(type: "TEXT", nullable: false),
-                    InetType = table.Column<string>(type: "TEXT", nullable: true),
+                    InetType = table.Column<string>(type: "TEXT", nullable: false),
                     InetScope = table.Column<string>(type: "TEXT", nullable: true),
                     InetValidLifetime = table.Column<string>(type: "TEXT", nullable: true),
                     InetPreferredLifetime = table.Column<string>(type: "TEXT", nullable: true),
@@ -109,6 +109,22 @@ namespace JMW.Google.OnHub.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InterfaceInets", x => new { x.Inet, x.IfIndex });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Mac",
+                columns: table => new
+                {
+                    HwAddress = table.Column<string>(type: "TEXT", nullable: false),
+                    SeenFrom = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    SeenTo = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    IfIndex = table.Column<string>(type: "TEXT", nullable: true),
+                    IsLocal = table.Column<string>(type: "TEXT", nullable: true),
+                    Age = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Mac", x => x.HwAddress);
                 });
         }
 
@@ -125,6 +141,9 @@ namespace JMW.Google.OnHub.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "InterfaceInets");
+
+            migrationBuilder.DropTable(
+                name: "Mac");
         }
     }
 }

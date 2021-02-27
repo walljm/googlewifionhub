@@ -17,7 +17,7 @@ namespace JMW.Google.OnHub.API.Controllers
         {
             this.context = context;
         }
-        
+
         [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Interface))]
         [HttpGet("interface")]
         public IActionResult GetInterface()
@@ -25,14 +25,12 @@ namespace JMW.Google.OnHub.API.Controllers
             return Ok(this.context.Interface);
         }
 
-        
         [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(IpInfo))]
         [HttpGet("ip")]
         public IActionResult GetInterfaceIps()
         {
             return Ok(this.context.InterfaceInets);
         }
-
 
         [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Arp))]
         [HttpGet("arp")]
@@ -46,6 +44,13 @@ namespace JMW.Google.OnHub.API.Controllers
         public IActionResult GetArpHistory()
         {
             return Ok(this.context.ArpHistory);
+        }
+
+        [ProducesResponseType(statusCode: (int)HttpStatusCode.OK, type: typeof(Mac))]
+        [HttpGet("mac")]
+        public IActionResult GetMac()
+        {
+            return Ok(this.context.Mac);
         }
     }
 }

@@ -48,13 +48,14 @@ namespace JMW.Google.OnHub.Model
         public string StpHelloTime { get; set; }
         public string StpMaxAge { get; set; }
 
-        public List<InetInfo> Inet4 { get; set; } = new List<InetInfo>();
-        public List<InetInfo> Inet6 { get; set; } = new List<InetInfo>();
+        public List<InetInfo> Inet { get; set; } = new List<InetInfo>();
     }
 
     public class InetInfo
     {
-        public string Inet { get; set; }
+        [Required] public string IfIndex { get; set; }
+        [Required] public string InetType { get; set; }
+        [Required] public string Inet { get; set; }
         public string InetScope { get; set; }
         public string InetValidLifetime { get; set; }
         public string InetPreferredLifetime { get; set; }

@@ -81,7 +81,7 @@ namespace JMW.Google.OnHub
             var netState = extractDeviceState(dict["netState"]);
             netState.ArpCache = extractArps(dict["/proc/net/arp"]);
             netState.Interfaces = extractInterfaces(dict["/bin/ip -s -d addr"]);
-            netState.CamTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
+            netState.MacTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
             return netState;
         }
 
@@ -190,8 +190,10 @@ namespace JMW.Google.OnHub
                 {
                     var l2 = lines[++i];
 
-                    ifc.Inet4.Add(new InetInfo
+                    ifc.Inet.Add(new InetInfo
                     {
+                        IfIndex = ifc.IfIndex,
+                        InetType = "IPv4",
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
@@ -204,8 +206,10 @@ namespace JMW.Google.OnHub
                 {
                     var l2 = lines[++i];
 
-                    ifc.Inet6.Add(new InetInfo
+                    ifc.Inet.Add(new InetInfo
                     {
+                        IfIndex = ifc.IfIndex,
+                        InetType = "IPv6",
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet6 ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")

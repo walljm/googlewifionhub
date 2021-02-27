@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JMW.Google.OnHub.API.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20210227174934_Initial")]
+    [Migration("20210227192506_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,55 +83,27 @@ namespace JMW.Google.OnHub.API.Migrations
                     b.ToTable("ArpHistory");
                 });
 
-            modelBuilder.Entity("JMW.Google.OnHub.API.Model.InetInfo", b =>
-                {
-                    b.Property<string>("Inet")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IfIndex")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InetPreferredLifetime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InetScope")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InetType")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InetValidLifetime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenFrom")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("SeenTo")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Inet", "IfIndex");
-
-                    b.ToTable("InterfaceInets");
-                });
-
             modelBuilder.Entity("JMW.Google.OnHub.API.Model.Interface", b =>
                 {
                     b.Property<string>("IfIndex")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("BRD")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Group")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Info")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Link")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MAC")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MTU")
@@ -181,6 +153,7 @@ namespace JMW.Google.OnHub.API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("State")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StpCost")
@@ -240,6 +213,63 @@ namespace JMW.Google.OnHub.API.Migrations
                     b.HasKey("IfIndex");
 
                     b.ToTable("Interface");
+                });
+
+            modelBuilder.Entity("JMW.Google.OnHub.API.Model.IpInfo", b =>
+                {
+                    b.Property<string>("Inet")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IfIndex")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InetPreferredLifetime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InetScope")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InetType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InetValidLifetime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenFrom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenTo")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Inet", "IfIndex");
+
+                    b.ToTable("InterfaceInets");
+                });
+
+            modelBuilder.Entity("JMW.Google.OnHub.API.Model.Mac", b =>
+                {
+                    b.Property<string>("HwAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Age")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IfIndex")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IsLocal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenFrom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("SeenTo")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("HwAddress");
+
+                    b.ToTable("Mac");
                 });
 #pragma warning restore 612, 618
         }

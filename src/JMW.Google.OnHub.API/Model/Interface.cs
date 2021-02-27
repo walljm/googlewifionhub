@@ -116,27 +116,12 @@ namespace JMW.Google.OnHub.API.Model
 
         [Required] public DateTimeOffset SeenTo { get; set; }
 
-        public static IpInfo ToInet4Info(string ifIndex, OnHub.Model.InetInfo info, DateTimeOffset from, DateTimeOffset to)
+        public static IpInfo ToInetInfo(OnHub.Model.InetInfo info, DateTimeOffset from, DateTimeOffset to)
         {
             return new IpInfo
             {
-                IfIndex = ifIndex,
-                InetType = "IPv4",
-                Inet = info.Inet,
-                InetScope = info.InetScope,
-                InetValidLifetime = info.InetValidLifetime,
-                InetPreferredLifetime = info.InetPreferredLifetime,
-                SeenFrom = from,
-                SeenTo = to
-            };
-        }
-
-        public static IpInfo ToInet6Info(string ifIndex, OnHub.Model.InetInfo info, DateTimeOffset from, DateTimeOffset to)
-        {
-            return new IpInfo
-            {
-                IfIndex = ifIndex,
-                InetType = "IPv6",
+                IfIndex = info.IfIndex,
+                InetType = info.InetType,
                 Inet = info.Inet,
                 InetScope = info.InetScope,
                 InetValidLifetime = info.InetValidLifetime,

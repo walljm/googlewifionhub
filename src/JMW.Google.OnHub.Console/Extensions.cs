@@ -81,7 +81,7 @@ namespace JMW.Extensions.Text
                 write(indent);
                 foreach (var prop in fArray.Where(o => !o.IsList))
                 {
-                    write($"  {string.Empty.PadRight(prop.Width + 2, columnDivider)}");
+                    write($"  {string.Empty.PadRight(prop.Width, columnDivider)}  ");
                 }
                 write(Environment.NewLine);
 

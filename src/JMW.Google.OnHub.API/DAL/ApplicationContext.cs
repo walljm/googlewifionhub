@@ -5,8 +5,9 @@ namespace JMW.Google.OnHub.API.Data
 {
     public class ApplicationContext : DbContext
     {
-        public DbSet<Arp> Arp { get; set; }
+        public DbSet<Mac> Mac { get; set; }
 
+        public DbSet<Arp> Arp { get; set; }
         public DbSet<ArpHistory> ArpHistory { get; set; }
 
         public DbSet<Interface> Interface { get; set; }
@@ -17,6 +18,9 @@ namespace JMW.Google.OnHub.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Mac>()
+                .HasKey(o => o.HwAddress); // we only want one entry for each IP in curent arp cache
+
             modelBuilder.Entity<Arp>()
                         .HasKey(o => o.IpAddress); // we only want one entry for each IP in curent arp cache
 

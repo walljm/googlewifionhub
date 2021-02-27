@@ -75,8 +75,43 @@ namespace JMW.Google.OnHub.API.Schedule
             this.context.SaveChanges();
             logger.LogInformation($"(elapsedTime={step.Elapsed}, type={nameof(Interface)}) data stored");
 
+            
+            step.Restart();
+            await handleMacs(data.MacTable, dt);
+            this.context.SaveChanges();
+            logger.LogInformation($"(elapsedTime={step.Elapsed}, type={nameof(Mac)}) data stored");
+
             // save all the changes.
             logger.LogInformation($"(elapsedTime={sw.Elapsed}) OnHub Collection complete");
+        }
+
+        private async Task handleMacs(IEnumerable<OnHub.Model.Mac> entries, DateTimeOffset dt)
+        {
+            foreach (var mac in entries)
+            {
+                // get entry
+                var current = await this.context.Mac.FindAsync(mac.HwAddress);
+                if (current == null) // its never been seen before...
+                {
+                    // store it and a history entry then exit, you'll all done.
+                    this.context.Mac.Add(Mac.ToMac(mac, dt, dt)); // add to current cache.
+                    continue;
+                }
+
+                // should it be deleted?
+                var timeoutDate =
+                    DateTimeOffset.UtcNow.Subtract(
+                        new TimeSpan(cacheOptions.CurrentValue.CurrentTimeoutInDays, 0, 0, 0));
+                if (current.SeenTo < timeoutDate)
+                { // yup, its too old, take it out.
+                    this.context.Mac.Remove(current);
+                    continue;
+                }
+
+                // now update the other info so the cache is fresh.
+                this.context.Mac.Remove(current); // remove so we can replace with new one
+                this.context.Mac.Add(Mac.ToMac(mac, current.SeenFrom, dt));
+            }
         }
 
         private async Task handleArps(IEnumerable<OnHub.Model.Arp> entries, DateTimeOffset dt)
@@ -181,21 +216,20 @@ namespace JMW.Google.OnHub.API.Schedule
 
         private async Task handleInets(OnHub.Model.Interface ifc, DateTimeOffset dt)
         {
-            var timeoutDate =
-                DateTimeOffset.UtcNow.Subtract(
-                    new TimeSpan(cacheOptions.CurrentValue.CurrentTimeoutInDays, 0, 0, 0));
-
-            foreach (var info in ifc.Inet4)
+            foreach (var info in ifc.Inet)
             {
                 // get entry
                 var current = await this.context.InterfaceInets.FindAsync(info.Inet, ifc.IfIndex);
                 if (current == null) // its never been seen before...
                 {
                     // store it and a history entry then exit, you'll all done.
-                    this.context.InterfaceInets.Add(IpInfo.ToInet4Info(ifc.IfIndex, info, dt, dt)); // add to current cache.
+                    this.context.InterfaceInets.Add(IpInfo.ToInetInfo(info, dt, dt)); // add to current cache.
                     continue;
                 }
 
+                var timeoutDate =
+                    DateTimeOffset.UtcNow.Subtract(
+                        new TimeSpan(cacheOptions.CurrentValue.CurrentTimeoutInDays, 0, 0, 0));
                 if (current.SeenTo < timeoutDate)
                 { // yup, its too old, take it out.
                     this.context.InterfaceInets.Remove(current);
@@ -204,30 +238,7 @@ namespace JMW.Google.OnHub.API.Schedule
 
                 // now update the other info so the cache is fresh.
                 this.context.InterfaceInets.Remove(current); // remove so we can replace with new one
-                this.context.InterfaceInets.Add(IpInfo.ToInet4Info(ifc.IfIndex, info, current.SeenFrom, dt));
-            }
-
-            foreach (var info in ifc.Inet6)
-            {
-                // get entry
-                var current = await this.context.InterfaceInets.FindAsync(info.Inet, ifc.IfIndex);
-                if (current == null) // its never been seen before...
-                {
-                    // store it and a history entry then exit, you'll all done.
-                    this.context.InterfaceInets.Add(IpInfo.ToInet6Info(ifc.IfIndex, info, dt, dt)); // add to current cache.
-                    continue;
-                }
-
-                // should it be deleted?
-                if (current.SeenTo < timeoutDate)
-                { // yup, its too old, take it out.
-                    this.context.InterfaceInets.Remove(current);
-                    continue;
-                }
-
-                // now update the other info so the cache is fresh.
-                this.context.InterfaceInets.Remove(current); // remove so we can replace with new one
-                this.context.InterfaceInets.Add(IpInfo.ToInet6Info(ifc.IfIndex, info, current.SeenFrom, dt));
+                this.context.InterfaceInets.Add(IpInfo.ToInetInfo(info, current.SeenFrom, dt));
             }
         }
     }

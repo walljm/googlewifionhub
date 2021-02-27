@@ -70,7 +70,7 @@ namespace JMW.Google.OnHub.Console
                         break;
 
                     case Categories.cam:
-                        Console.Write(JsonSerializer.Serialize(data.CamTable, jsonOpts));
+                        Console.Write(JsonSerializer.Serialize(data.MacTable, jsonOpts));
                         break;
 
                     case Categories.ifc:
@@ -84,7 +84,7 @@ namespace JMW.Google.OnHub.Console
             {
                 case Categories.all:
                     data.ArpCache.WriteAsTable(Console.Write);
-                    data.CamTable.WriteAsTable(Console.Write);
+                    data.MacTable.WriteAsTable(Console.Write);
                     data.Interfaces.WriteAsTable(Console.Write);
                     break;
 
@@ -93,7 +93,7 @@ namespace JMW.Google.OnHub.Console
                     break;
 
                 case Categories.cam:
-                    data.CamTable.WriteAsTable(Console.Write);
+                    data.MacTable.WriteAsTable(Console.Write);
                     break;
 
                 case Categories.ifc:
