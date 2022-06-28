@@ -64,7 +64,7 @@ namespace JMW.Google.OnHub.API
 
             services.AddQuartz(q =>
             {
-                q.UseMicrosoftDependencyInjectionScopedJobFactory();
+                q.UseMicrosoftDependencyInjectionJobFactory();
                 var opts = Configuration.GetSection<CollectionOptions>();
                 if (opts == null || opts.Schedule == null)
                 {
@@ -88,9 +88,10 @@ namespace JMW.Google.OnHub.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JMW.Google.OnHub.API.v1"));
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JMW.Google.OnHub.API.v1"));
 
             app.UseHttpsRedirection();
 
