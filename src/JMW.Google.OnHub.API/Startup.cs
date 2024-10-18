@@ -64,7 +64,6 @@ namespace JMW.Google.OnHub.API
 
             services.AddQuartz(q =>
             {
-                q.UseMicrosoftDependencyInjectionJobFactory();
                 var opts = Configuration.GetSection<CollectionOptions>();
                 if (opts == null || opts.Schedule == null)
                 {
@@ -108,7 +107,7 @@ namespace JMW.Google.OnHub.API
             // validate the options.
             try
             {
-                var t = options.Value;
+                _ = options.Value;
             }
             catch (OptionsValidationException ex)
             {

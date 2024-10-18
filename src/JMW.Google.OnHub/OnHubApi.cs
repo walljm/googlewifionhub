@@ -13,12 +13,12 @@ namespace JMW.Google.OnHub
 {
     public class OnHubApi
     {
-        private static readonly HttpClient client = new HttpClient()
+        private static readonly HttpClient Client = new ()
         {
             Timeout = new TimeSpan(0, 5, 0) // 5 min timeout... these things can take a while...
         };
 
-        private static readonly Dictionary<string, string> hwTypes = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> HwTypes = new()
         {
             {"0x0", "Reserved"},
             {"0x1", "Ethernet"},
@@ -63,7 +63,7 @@ namespace JMW.Google.OnHub
             {"0x65535", "Reserved"}
         };
 
-        private static readonly Dictionary<string, string> flags = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> Flags = new()
         {
             {"0x0", "Incomplete"},
             {"0x2", "Complete"},
@@ -75,24 +75,24 @@ namespace JMW.Google.OnHub
             {"0x40", "Dont Publish"},
         };
 
-        private const string inetTypeIPv4 = "IPv4";
-        private const string inetTypeIPv6 = "IPv6";
+        private const string InetTypeIPv4 = "IPv4";
+        private const string InetTypeIPv6 = "IPv6";
 
         public static async Task<DeviceState> GetData(IPAddress target)
         {
-            var dict = await getDiagnosticReport(target);
-            var netState = extractDeviceState(dict["netState"]);
-            netState.ArpCache = extractArps(dict["/proc/net/arp"]);
-            netState.Interfaces = extractInterfaces(dict["/bin/ip -s -d addr"]);
-            netState.MacTable = extractMacs(dict["/sbin/brctl showmacs br-lan"]);
+            var dict = await GetDiagnosticReport(target);
+            var netState = ExtractDeviceState(dict["netState"]);
+            netState.ArpCache = ExtractArps(dict["/proc/net/arp"]);
+            netState.Interfaces = ExtractInterfaces(dict["/bin/ip -s -d addr"]);
+            netState.MacTable = ExtractMacs(dict["/sbin/brctl showmacs br-lan"]);
             return netState;
         }
 
-        private static async Task<Dictionary<string, string[]>> getDiagnosticReport(IPAddress target)
+        private static async Task<Dictionary<string, string[]>> GetDiagnosticReport(IPAddress target)
         {
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Host", "localhost");
-            var req = await client.GetAsync($"http://{target}/api/v1/diagnostic-report");
+            Client.DefaultRequestHeaders.Clear();
+            Client.DefaultRequestHeaders.Add("Host", "localhost");
+            var req = await Client.GetAsync($"http://{target}/api/v1/diagnostic-report");
 
             // if there was an error let us know
             if (!req.IsSuccessStatusCode)
@@ -101,8 +101,8 @@ namespace JMW.Google.OnHub
             }
 
             var stream = await req.Content.ReadAsStreamAsync();
-            var compressedBytes = readBytes(stream);
-            var decompressedBytes = decompress(compressedBytes);
+            var compressedBytes = ReadBytes(stream);
+            var decompressedBytes = Decompress(compressedBytes);
             var diag = DiagnosticReport.Parser.ParseFrom(decompressedBytes);
 
             var dict = new Dictionary<string, string[]>();
@@ -125,10 +125,10 @@ namespace JMW.Google.OnHub
             return dict;
         }
 
-        private static byte[] readBytes(Stream input)
+        private static byte[] ReadBytes(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new ();
             int read;
             while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
@@ -138,7 +138,7 @@ namespace JMW.Google.OnHub
             return ms.ToArray();
         }
 
-        private static byte[] decompress(byte[] data)
+        private static byte[] Decompress(byte[] data)
         {
             using var compressedStream = new MemoryStream(data);
             using var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
@@ -149,7 +149,7 @@ namespace JMW.Google.OnHub
 
         #region Parsing Functions
 
-        private static List<Interface> extractInterfaces(string[] lines)
+        private static List<Interface> ExtractInterfaces(string[] lines)
         {
             var records = new List<Interface>();
             var ifc = new Interface();
@@ -196,7 +196,7 @@ namespace JMW.Google.OnHub
                     ifc.Inet.Add(new InetInfo
                     {
                         IfIndex = ifc.IfIndex,
-                        InetType = inetTypeIPv4,
+                        InetType = InetTypeIPv4,
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
@@ -212,7 +212,7 @@ namespace JMW.Google.OnHub
                     ifc.Inet.Add(new InetInfo
                     {
                         IfIndex = ifc.IfIndex,
-                        InetType = inetTypeIPv6,
+                        InetType = InetTypeIPv6,
                         Inet = line.If(Extensions.ParseAfterIndexOf_PlusLength, "inet6 ").ParseToIndexOf(" ").Trim(),
                         InetScope = line.If(Extensions.ParseAfterIndexOf_PlusLength, "scope ").Trim(),
                         InetValidLifetime = l2.If(Extensions.ParseAfterIndexOf_PlusLength, "valid_lft ")
@@ -280,7 +280,7 @@ namespace JMW.Google.OnHub
             return records;
         }
 
-        private static List<Arp> extractArps(string[] lines)
+        private static List<Arp> ExtractArps(string[] lines)
         {
             var records = new List<Arp>();
             foreach (var line in lines.Skip(1))
@@ -290,8 +290,8 @@ namespace JMW.Google.OnHub
                 records.Add(new Arp
                 {
                     IpAddress = fields[0].Trim(),
-                    HwType = hwTypes.ContainsKey(fields[1]) ? hwTypes[fields[1]] : "Unassigned".Trim(),
-                    Flags = flags.ContainsKey(fields[2]) ? flags[fields[2]] : "Unknown".Trim(),
+                    HwType = HwTypes.ContainsKey(fields[1]) ? HwTypes[fields[1]] : "Unassigned".Trim(),
+                    Flags = Flags.ContainsKey(fields[2]) ? Flags[fields[2]] : "Unknown".Trim(),
                     HwAddress = fields[3].Trim(),
                     Mask = fields[4].Trim(),
                     Interface = fields[5].Trim()
@@ -301,7 +301,7 @@ namespace JMW.Google.OnHub
             return records;
         }
 
-        private static List<Mac> extractMacs(string[] lines)
+        private static List<Mac> ExtractMacs(string[] lines)
         {
             var records = new List<Mac>();
             foreach (var line in lines.Skip(1))
@@ -320,7 +320,7 @@ namespace JMW.Google.OnHub
             return records;
         }
 
-        private static DeviceState extractDeviceState(string[] lines)
+        private static DeviceState ExtractDeviceState(string[] lines)
         {
             var parsed = new Parsing.Junos.Parser().Parse(string.Join('\n', lines));
             //printJson(parsed);
@@ -341,17 +341,17 @@ namespace JMW.Google.OnHub
                 }
                 else if (tag.Name == "infra_state")
                 {
-                    ds.InfraState = extractInfraState(tag.Children);
+                    ds.InfraState = ExtractInfraState(tag.Children);
                 }
                 else if (tag.Name == "network_service_state")
                 {
-                    ds.NetworkServiceState = extractNetworkServiceState(tag.Children);
+                    ds.NetworkServiceState = ExtractNetworkServiceState(tag.Children);
                 }
             }
             return ds;
         }
 
-        private static InfraState extractInfraState(IEnumerable<Parsing.Junos.Tag> ast)
+        private static InfraState ExtractInfraState(IEnumerable<Parsing.Junos.Tag> ast)
         {
             var infra = new InfraState();
             foreach (var tag in ast)
@@ -452,7 +452,7 @@ namespace JMW.Google.OnHub
                 }
                 else if (tag.Name == "experiment_state")
                 {
-                    infra.ExperimentStateIds = tag.Children.FirstOrDefault().Children.Select(o => o.Value).ToList() ??
+                    infra.ExperimentStateIds = tag.Children.FirstOrDefault()?.Children.Select(o => o.Value).ToList() ??
                                                new List<string>();
                 }
             }
@@ -460,7 +460,7 @@ namespace JMW.Google.OnHub
             return infra;
         }
 
-        private static NetworkServiceState extractNetworkServiceState(IEnumerable<Parsing.Junos.Tag> ast)
+        private static NetworkServiceState ExtractNetworkServiceState(IEnumerable<Parsing.Junos.Tag> ast)
         {
             var result = new NetworkServiceState();
             foreach (var tag in ast)
@@ -502,10 +502,7 @@ namespace JMW.Google.OnHub
                 }
                 else if (tag.Name == "ipv6_state")
                 {
-                    if (result.IPv6 == null)
-                    {
-                        result.IPv6 = new IPv6();
-                    }
+                    result.IPv6 ??= new IPv6();
                     foreach (var p in tag.Children)
                     {
                         if (p.Name == "non_temporary_address_received")
@@ -528,10 +525,7 @@ namespace JMW.Google.OnHub
                 }
                 else if (tag.Name == "ipv6_config")
                 {
-                    if (result.IPv6 == null)
-                    {
-                        result.IPv6 = new IPv6();
-                    }
+                    result.IPv6 ??= new IPv6();
                     foreach (var p in tag.Children)
                     {
                         if (p.Name == "enabled")
@@ -722,17 +716,17 @@ namespace JMW.Google.OnHub
                                                     {
                                                         if (f.Value.StartsWith("md"))
                                                         {
-                                                            st.DnsSdFeatures.MD = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                            st.DnsSdFeatures.MD = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                         }
                                                         else
                                                         if (f.Value.StartsWith("ca"))
                                                         {
-                                                            st.DnsSdFeatures.CA = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                            st.DnsSdFeatures.CA = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                         }
                                                         else
                                                         if (f.Value.StartsWith("fn"))
                                                         {
-                                                            st.DnsSdFeatures.FN = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                            st.DnsSdFeatures.FN = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                         }
                                                     }
                                                 }
@@ -751,17 +745,17 @@ namespace JMW.Google.OnHub
                                                         {
                                                             if (f.Value.StartsWith("md"))
                                                             {
-                                                                st.DnsSdFeatures.MD = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                                st.DnsSdFeatures.MD = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                             }
                                                             else
                                                             if (f.Value.StartsWith("ca"))
                                                             {
-                                                                st.DnsSdFeatures.CA = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                                st.DnsSdFeatures.CA = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                             }
                                                             else
                                                             if (f.Value.StartsWith("fn"))
                                                             {
-                                                                st.DnsSdFeatures.FN = f.Value.ToString().ParseAfterIndexOf_PlusLength("=");
+                                                                st.DnsSdFeatures.FN = f.Value.ParseAfterIndexOf_PlusLength("=");
                                                             }
                                                         }
                                                     }
